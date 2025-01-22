@@ -1,0 +1,8 @@
+[package]
+name = "sticky"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+gpui.workspace = true

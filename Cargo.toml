@@ -1,8 +1,11 @@
-[package]
-name = "sticky"
-version = "0.1.0"
+[workspace]
+members = ["crates/sticky"]
+default-members = ["crates/sticky"]
+
+[workspace.package]
+publish = false
 edition = "2021"
 
-[dependencies]
+[workspace.dependencies]
 
 gpui = { git = "https://github.com/zed-industries/zed" }
