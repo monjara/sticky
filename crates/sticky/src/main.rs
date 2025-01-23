@@ -25,7 +25,7 @@ fn main() {
     app.run(|cx| {
         cx.open_window(WindowOptions::default(), |cx| {
             cx.new_view(|_cx| Hello {
-                text: "World".into(),
+                text: "rust".into(),
             })
         })
         .unwrap();
