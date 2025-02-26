@@ -1,11 +1,11 @@
 [workspace]
+resolver = "2"
 members = ["crates/sticky"]
 default-members = ["crates/sticky"]
 
 [workspace.package]
 publish = false
-edition = "2021"
+edition = "2024"
 
 [workspace.dependencies]
-
 gpui = { git = "https://github.com/zed-industries/zed" }
