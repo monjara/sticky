@@ -1,0 +1,10 @@
+[config]
+default_to_workspace = false
+
+[tasks.run]
+command = "cargo"
+args = ["run", "${@}"]
+
+[tasks.clean]
+command = "cargo"
+args = ["clean"]

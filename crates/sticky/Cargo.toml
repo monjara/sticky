@@ -1,8 +1,12 @@
 [package]
 name = "sticky"
 version = "0.1.0"
-edition = "2021"
+edition = { workspace = true }
+
+[[bin]]
+name = "sticky"
+path = "src/main.rs"
 
 [dependencies]
 
-gpui.workspace = true
+gpui = { workspace = true }
