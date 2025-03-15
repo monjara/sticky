@@ -1,5 +1,5 @@
 use gpui::{
-    div, rgb, App, ParentElement, Render, SharedString, Styled, VisualContext, WindowOptions,
+    App, ParentElement, Render, SharedString, Styled, VisualContext, WindowOptions, div, rgb,
 };
 
 struct Hello {
@@ -10,12 +10,12 @@ impl Render for Hello {
     fn render(&mut self, _cx: &mut gpui::ViewContext<Self>) -> impl gpui::IntoElement {
         div()
             .flex()
-            .bg(rgb(0x2e7d32))
+            .bg(rgb(0x2e_7d32))
             .size_full()
             .justify_center()
             .items_center()
             .text_xl()
-            .text_color(rgb(0xffffff))
+            .text_color(rgb(0xff_ffff))
             .child(format!("Hello, {}!", &self.text))
     }
 }
@@ -23,6 +23,13 @@ impl Render for Hello {
 fn main() {
     let app = App::new();
     app.run(|cx| {
+        cx.open_window(WindowOptions::default(), |cx| {
+            cx.new_view(|_cx| Hello {
+                text: "rust".into(),
+            })
+        })
+        .unwrap();
+
         cx.open_window(WindowOptions::default(), |cx| {
             cx.new_view(|_cx| Hello {
                 text: "rust".into(),

@@ -8,3 +8,15 @@ args = ["run", "${@}"]
 [tasks.clean]
 command = "cargo"
 args = ["clean"]
+
+[tasks.check]
+command = "cargo"
+args = ["check"]
+
+[tasks.clippy-check]
+command = "cargo"
+args = ["clippy", "--", "-W", "clippy::all", "-W", "clippy::pedantic"]
+
+[tasks.clippy-fix]
+command = "cargo"
+args = ["clippy", "--fix", "--", "-W", "clippy::all", "-W", "clippy::pedantic"]

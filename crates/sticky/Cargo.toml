@@ -8,5 +8,5 @@ name = "sticky"
 path = "src/main.rs"
 
 [dependencies]
-
+libsqlite3-sys = { workspace = true }
 gpui = { workspace = true }
