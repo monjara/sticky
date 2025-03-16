@@ -8,6 +8,7 @@ publish = false
 edition = "2024"
 
 [workspace.dependencies]
-gpui = { git = "https://github.com/zed-industries/zed" }
+gpui = { git = "https://github.com/huacnlee/zed.git", branch = "webview" }
+gpui-component = { git = "https://github.com/longbridge/gpui-component.git" }
 libsqlite3-sys = { version = "0.31.0" }
 unicode-segmentation = { version = "1.9.0" }

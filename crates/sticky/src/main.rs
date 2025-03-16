@@ -9,6 +9,8 @@ use view::text_wrap::TextWrap;
 
 fn main() {
     Application::new().run(|cx: &mut App| {
+        gpui_component::init(cx);
+
         cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_cx| TextWrap {}))
             .unwrap();
 
