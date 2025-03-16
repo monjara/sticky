@@ -1,12 +1,12 @@
 use std::ops::Range;
 
 use gpui::{
-    App, Bounds, ClipboardItem, Context, CursorStyle, ElementId, ElementInputHandler, Entity,
-    EntityInputHandler, FocusHandle, Focusable, GlobalElementId, Keystroke, LayoutId, MouseButton,
-    MouseDownEvent, MouseMoveEvent, MouseUpEvent, PaintQuad, Pixels, Point, ShapedLine,
-    SharedString, Style, TextOverflow, TextRun, UTF16Selection, UnderlineStyle, Window, actions,
-    black, div, fill, hsla, opaque_grey, point, prelude::*, px, relative, rgb, rgba, size, white,
-    yellow,
+    App, Bounds, ClipboardItem, Context, CursorStyle, Element, ElementId, ElementInputHandler,
+    Entity, EntityInputHandler, FocusHandle, Focusable, GlobalElementId, InteractiveElement,
+    IntoElement, Keystroke, LayoutId, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent,
+    PaintQuad, ParentElement, Pixels, Point, Render, ShapedLine, SharedString, Style, Styled,
+    TextOverflow, TextRun, UTF16Selection, UnderlineStyle, Window, actions, div, fill, hsla, point,
+    px, relative, rgb, rgba, size, white,
 };
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -245,16 +245,6 @@ impl TextInput {
             .grapheme_indices(true)
             .find_map(|(idx, _)| (idx > offset).then_some(idx))
             .unwrap_or(self.content.len())
-    }
-
-    fn reset(&mut self) {
-        self.content = "".into();
-        self.selected_range = 0..0;
-        self.selection_reversed = false;
-        self.marked_range = None;
-        self.last_layout = None;
-        self.last_bounds = None;
-        self.is_selecting = false;
     }
 }
 
@@ -616,15 +606,6 @@ impl Focusable for InputExample {
     }
 }
 
-impl InputExample {
-    fn on_reset_click(&mut self, _: &MouseUpEvent, _window: &mut Window, cx: &mut Context<Self>) {
-        self.recent_keystrokes.clear();
-        self.text_input
-            .update(cx, |text_input, _cx| text_input.reset());
-        cx.notify();
-    }
-}
-
 impl Render for InputExample {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         div()
@@ -634,30 +615,6 @@ impl Render for InputExample {
             .flex_col()
             .size_full()
             .h_full()
-            .child(
-                div()
-                    .bg(white())
-                    .border_b_1()
-                    .border_color(black())
-                    .flex()
-                    .flex_row()
-                    .justify_between()
-                    .child(format!("Keyboard {}", cx.keyboard_layout()))
-                    .child(
-                        div()
-                            .border_1()
-                            .border_color(black())
-                            .px_2()
-                            .bg(yellow())
-                            .child("Reset")
-                            .hover(|style| {
-                                style
-                                    .bg(yellow().blend(opaque_grey(0.5, 0.5)))
-                                    .cursor_pointer()
-                            })
-                            .on_mouse_up(MouseButton::Left, cx.listener(Self::on_reset_click)),
-                    ),
-            )
             .child(self.text_input.clone())
             .children(self.recent_keystrokes.iter().rev().map(|ks| {
                 format!(
