@@ -10,3 +10,4 @@ edition = "2024"
 [workspace.dependencies]
 gpui = { git = "https://github.com/zed-industries/zed" }
 libsqlite3-sys = { version = "0.31.0" }
+unicode-segmentation = { version = "1.9.0" }
