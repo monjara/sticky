@@ -11,3 +11,4 @@ path = "src/main.rs"
 gpui = { workspace = true }
 gpui-component = { workspace = true }
 editor = { workspace = true }
+db = { workspace = true }

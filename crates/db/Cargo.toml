@@ -8,3 +8,5 @@ edition.workspace = true
 path = "src/db.rs"
 
 [dependencies]
+rusqlite = { workspace = true }
+ulid = { workspace = true }
