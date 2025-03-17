@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "crates/editor","crates/sticky"]
+members = ["crates/editor", "crates/sticky"]
 default-members = ["crates/sticky"]
 
 [workspace.package]
@@ -11,4 +11,5 @@ edition = "2024"
 gpui = { git = "https://github.com/huacnlee/zed.git", branch = "webview" }
 gpui-component = { git = "https://github.com/longbridge/gpui-component.git" }
 libsqlite3-sys = { version = "0.31.0" }
-unicode-segmentation = { version = "1.9.0" }
+
+editor = { path = "crates/editor" }
