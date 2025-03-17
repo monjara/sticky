@@ -20,3 +20,7 @@ args = ["clippy", "--", "-W", "clippy::all", "-W", "clippy::pedantic"]
 [tasks.clippy-fix]
 command = "cargo"
 args = ["clippy", "--fix", "--", "-W", "clippy::all", "-W", "clippy::pedantic"]
+
+[tasks.new]
+command = "cargo"
+args = ["new", "--lib", "crates/${@}"]
