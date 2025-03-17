@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/db", "crates/editor", "crates/sticky"]
+members = ["crates/db", "crates/editor", "crates/registry", "crates/sticky"]
 default-members = ["crates/sticky"]
 
 [workspace.package]
@@ -16,3 +16,4 @@ anyhow = "1.0.97"
 
 editor = { path = "crates/editor" }
 db = { path = "crates/db" }
+registry = { path = "crates/registry" }
