@@ -1,4 +1,3 @@
-pub mod repository;
 mod utils;
 
 use rusqlite::{Connection, Result};

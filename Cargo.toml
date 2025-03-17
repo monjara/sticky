@@ -1,11 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/adapter",
-  "crates/db",
-  "crates/editor", "crates/kernel",
-  "crates/registry",
-  "crates/sticky",
+    "crates/adapter",
+    "crates/db",
+    "crates/editor",
+    "crates/kernel",
+    "crates/registry",
+    "crates/sticky",
 ]
 default-members = ["crates/sticky"]
 
@@ -18,9 +19,11 @@ gpui = { git = "https://github.com/huacnlee/zed.git", branch = "webview" }
 gpui-component = { git = "https://github.com/longbridge/gpui-component.git" }
 rusqlite = { version = "0.34.0", features = ["bundled"] }
 ulid = { version = "1.2.1" }
-anyhow = "1.0.97"
+anyhow = { version = "1.0.97" }
+derive-new = { version = "0.7.0" }
 
 editor = { path = "crates/editor" }
 db = { path = "crates/db" }
 registry = { path = "crates/registry" }
 adapter = { path = "crates/adapter" }
+kernel = { path = "crates/kernel" }

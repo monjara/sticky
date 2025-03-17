@@ -5,3 +5,6 @@ publish.workspace = true
 edition.workspace = true
 
 [dependencies]
+rusqlite = { workspace = true }
+adapter = { workspace = true }
+kernel = { workspace = true }

@@ -1,14 +1,21 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use std::sync::Arc;
+
+use adapter::repository_impl::note_repository_impl::NoteRepositoryImpl;
+use kernel::repository::note_repository::NoteRepository;
+use rusqlite::Connection;
+
+pub struct AppRegistryImpl {
+    note_repository: Arc<dyn NoteRepository>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl AppRegistryImpl {
+    pub fn new(conn: Connection) -> Self {
+        let note_repository = Arc::new(NoteRepositoryImpl::new(conn));
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        Self { note_repository }
+    }
+
+    pub fn note_respository(&self) -> Arc<dyn NoteRepository> {
+        self.note_repository.clone()
     }
 }

@@ -5,6 +5,12 @@ version = 4
 [[package]]
 name = "adapter"
 version = "0.1.0"
+dependencies = [
+ "db",
+ "derive-new",
+ "kernel",
+ "rusqlite",
+]
 
 [[package]]
 name = "adler2"
@@ -1373,6 +1379,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b42b6fa04a440b495c8b04d0e71b707c585f83cb9cb28cf8cd0d976c315e31b4"
 dependencies = [
  "powerfmt",
+]
+
+[[package]]
+name = "derive-new"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cdc8d50f426189eef89dac62fabfa0abb27d5cc008f25bf4156a0203325becc"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.96",
 ]
 
 [[package]]
@@ -2875,6 +2892,10 @@ dependencies = [
  "once_cell",
  "wasm-bindgen",
 ]
+
+[[package]]
+name = "kernel"
+version = "0.1.0"
 
 [[package]]
 name = "khronos-egl"
@@ -4488,6 +4509,11 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "registry"
 version = "0.1.0"
+dependencies = [
+ "adapter",
+ "kernel",
+ "rusqlite",
+]
 
 [[package]]
 name = "rend"
@@ -5226,6 +5252,7 @@ dependencies = [
  "editor",
  "gpui",
  "gpui-component",
+ "registry",
 ]
 
 [[package]]
