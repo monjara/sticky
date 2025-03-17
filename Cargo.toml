@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/sticky"]
+members = [ "crates/editor","crates/sticky"]
 default-members = ["crates/sticky"]
 
 [workspace.package]
