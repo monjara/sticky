@@ -8,7 +8,7 @@ fn main() {
         gpui_component::init(cx);
 
         cx.open_window(WindowOptions::default(), |window, cx| {
-            Editor::view(window, cx)
+           Editor::view(window, cx)
         })
         .unwrap();
     });

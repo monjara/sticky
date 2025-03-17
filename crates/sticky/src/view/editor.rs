@@ -1,5 +1,5 @@
 use gpui::{App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, div};
-use gpui_component::input::TextInput;
+use gpui_component::input::{InputEvent, TextInput};
 
 pub struct Editor {
     input: Entity<TextInput>,
@@ -17,8 +17,24 @@ impl Editor {
                 .h_full()
                 .placeholder("Type here")
         });
+        cx.subscribe_in(&input, window, Self::on_input).detach();
 
         Self { input }
+    }
+
+    pub fn on_input(
+        &mut self,
+        _: &Entity<TextInput>,
+        event: &InputEvent,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) {
+        match event {
+            InputEvent::Change(text) => println!("Change: {text}"),
+            InputEvent::PressEnter => println!("PressEnter"),
+            InputEvent::Focus => println!("Focus"),
+            InputEvent::Blur => println!("Blur"),
+        };
     }
 }
 
