@@ -3,7 +3,7 @@ resolver = "2"
 members = [
   "crates/adapter",
   "crates/db",
-  "crates/editor",
+  "crates/editor", "crates/kernel",
   "crates/registry",
   "crates/sticky",
 ]
