@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/editor", "crates/sticky"]
+members = ["crates/db", "crates/editor", "crates/sticky"]
 default-members = ["crates/sticky"]
 
 [workspace.package]
@@ -13,3 +13,4 @@ gpui-component = { git = "https://github.com/longbridge/gpui-component.git" }
 libsqlite3-sys = { version = "0.31.0" }
 
 editor = { path = "crates/editor" }
+db = { path = "crates/db" }
