@@ -12,6 +12,7 @@ gpui = { git = "https://github.com/huacnlee/zed.git", branch = "webview" }
 gpui-component = { git = "https://github.com/longbridge/gpui-component.git" }
 rusqlite = { version = "0.34.0", features = ["bundled"] }
 ulid = { version = "1.2.1" }
+anyhow = "1.0.97"
 
 editor = { path = "crates/editor" }
 db = { path = "crates/db" }

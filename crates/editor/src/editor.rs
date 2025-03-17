@@ -1,4 +1,7 @@
-use gpui::{App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, div};
+use gpui::{
+    App, AppContext, Bounds, Context, Entity, ParentElement, Pixels, Point, Render, Size, Styled,
+    Window, WindowBounds, WindowOptions, div,
+};
 use gpui_component::input::{InputEvent, TextInput};
 
 pub struct Editor {
@@ -45,5 +48,15 @@ impl Render for Editor {
         _cx: &mut Context<'_, Self>,
     ) -> impl gpui::IntoElement {
         div().w_full().h_full().child(self.input.clone())
+    }
+}
+
+pub fn window_options() -> gpui::WindowOptions {
+    WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(Bounds {
+            origin: Point::new(Pixels(100.0), Pixels(100.0)),
+            size: Size::new(Pixels(300.0), Pixels(200.0)),
+        })),
+        ..Default::default()
     }
 }
