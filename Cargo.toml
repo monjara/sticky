@@ -1,12 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/adapter",
-    "crates/db",
-    "crates/editor",
-    "crates/kernel",
-    "crates/registry",
-    "crates/sticky",
+  "crates/adapter",
+  "crates/db",
+  "crates/debounce",
+  "crates/editor",
+  "crates/kernel",
+  "crates/registry",
+  "crates/sticky",
 ]
 default-members = ["crates/sticky"]
 
@@ -27,3 +28,4 @@ db = { path = "crates/db" }
 registry = { path = "crates/registry" }
 adapter = { path = "crates/adapter" }
 kernel = { path = "crates/kernel" }
+debounce = { path = "crates/debounce" }
