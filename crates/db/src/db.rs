@@ -24,6 +24,10 @@ impl Db {
               id TEXT NOT NULL
             , title TEXT NOT NULL
             , body TEXT NOT NULL
+            , width INTEGER NOT NULL
+            , height INTEGER NOT NULL
+            , location_x INTEGER NOT NULL
+            , location_y INTEGER NOT NULL
             , is_active BOOLEAN NOT NULL
             );
             ",

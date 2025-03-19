@@ -17,6 +17,10 @@ impl NoteRepository for NoteRepositoryImpl {
               id
             , title
             , body
+            , width
+            , height
+            , location_x
+            , location_y
             , is_active
             FROM notes
             ORDER BY id DESC;
@@ -29,7 +33,11 @@ impl NoteRepository for NoteRepositoryImpl {
                     id: row.get(0)?,
                     title: row.get(1)?,
                     body: row.get(2)?,
-                    is_active: row.get(3)?,
+                    width: row.get(3)?,
+                    height: row.get(4)?,
+                    location_x: row.get(5)?,
+                    location_y: row.get(6)?,
+                    is_active: row.get(7)?,
                 })
             })?
             .map(|note| note.unwrap())
