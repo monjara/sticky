@@ -5,6 +5,8 @@ use registry::AppRegistryImpl;
 
 fn main() {
     Application::new().run(|cx: &mut App| {
+        cx.activate(true);
+
         gpui_component::init(cx);
 
         let db = match Db::new() {
