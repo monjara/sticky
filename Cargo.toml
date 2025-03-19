@@ -4,6 +4,7 @@ members = [
   "crates/adapter",
   "crates/db",
   "crates/debounce",
+  "crates/handler",
   "crates/kernel",
   "crates/registry",
   "crates/sticky",
@@ -24,10 +25,11 @@ ulid = { version = "1.2.1" }
 anyhow = { version = "1.0.97" }
 derive-new = { version = "0.7.0" }
 
-db = { path = "crates/db" }
 registry = { path = "crates/registry" }
+handler = { path = "crates/handler" }
 adapter = { path = "crates/adapter" }
 kernel = { path = "crates/kernel" }
+db = { path = "crates/db" }
 debounce = { path = "crates/debounce" }
 window-editor = { path = "crates/window-editor" }
 window-list = { path = "crates/window-list" }
