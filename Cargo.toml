@@ -8,8 +8,7 @@ members = [
   "crates/kernel",
   "crates/registry",
   "crates/sticky",
-  "crates/window-editor",
-  "crates/window-list",
+  "crates/window",
 ]
 default-members = ["crates/sticky"]
 
@@ -31,5 +30,4 @@ adapter = { path = "crates/adapter" }
 kernel = { path = "crates/kernel" }
 db = { path = "crates/db" }
 debounce = { path = "crates/debounce" }
-window-editor = { path = "crates/window-editor" }
-window-list = { path = "crates/window-list" }
+window = { path = "crates/window" }

@@ -11,5 +11,5 @@ path = "src/main.rs"
 gpui = { workspace = true }
 gpui-component = { workspace = true }
 registry = { workspace = true }
-window-editor = { workspace = true }
-window-list = { workspace = true }
+window = { workspace = true }
+
