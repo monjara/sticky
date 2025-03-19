@@ -6,6 +6,7 @@ members = [
   "crates/debounce",
   "crates/editor",
   "crates/kernel",
+  "crates/list",
   "crates/registry",
   "crates/sticky",
 ]
@@ -29,3 +30,4 @@ registry = { path = "crates/registry" }
 adapter = { path = "crates/adapter" }
 kernel = { path = "crates/kernel" }
 debounce = { path = "crates/debounce" }
+list = { path = "crates/list" }
