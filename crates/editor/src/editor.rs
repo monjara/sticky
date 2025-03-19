@@ -15,10 +15,12 @@ impl Editor {
 
     pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
         let input = cx.new(|cx| {
-            TextInput::new(window, cx)
+            let mut input = TextInput::new(window, cx)
                 .multi_line()
                 .h_full()
-                .placeholder("Type here")
+                .placeholder("Type here");
+            input.set_text("default_value", window, cx);
+            input
         });
         cx.subscribe_in(&input, window, Self::on_input).detach();
 
@@ -33,7 +35,9 @@ impl Editor {
         _cx: &mut Context<Self>,
     ) {
         match event {
-            InputEvent::Change(text) => println!("Change: {text}"),
+            InputEvent::Change(text) => {
+                println!("{text}")
+            }
             InputEvent::PressEnter => println!("PressEnter"),
             InputEvent::Focus => println!("Focus"),
             InputEvent::Blur => println!("Blur"),
