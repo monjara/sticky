@@ -1,6 +1,6 @@
 use kernel::model;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Note {
     pub id: String,
     pub title: String,

@@ -24,3 +24,7 @@ args = ["clippy", "--fix", "--", "-W", "clippy::all", "-W", "clippy::pedantic"]
 [tasks.new]
 command = "cargo"
 args = ["new", "--lib", "crates/${@}"]
+
+[tasks.udeps]
+command = "cargo"
+args = ["+nightly", "udeps"]

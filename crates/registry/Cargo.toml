@@ -10,3 +10,4 @@ rusqlite = { workspace = true }
 adapter = { workspace = true }
 kernel = { workspace = true }
 handler = { workspace = true }
+db = { workspace = true }

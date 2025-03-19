@@ -1,25 +1,33 @@
 use gpui::{
-    div, App, AppContext, Bounds, Context, Entity, ParentElement, Pixels, Point, Render, Size,
-    Styled, Window, WindowBounds, WindowOptions,
+    App, AppContext, Bounds, Context, Entity, ParentElement, Pixels, Point, Render, Size, Styled,
+    Window, WindowBounds, WindowOptions, div,
 };
 use gpui_component::input::{InputEvent, TextInput};
+use registry::global_model::note_store::NoteStore;
 
 pub struct Editor {
     input: Entity<TextInput>,
 }
 
 impl Editor {
-    pub fn view(window: &mut Window, cx: &mut App) -> Entity<Self> {
-        cx.new(|cx| Self::new(window, cx))
+    pub fn view(window: &mut Window, cx: &mut App, id: &str) -> Entity<Self> {
+        cx.new(|cx| Self::new(window, cx, id))
     }
 
-    pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+    pub fn new(window: &mut Window, cx: &mut Context<Self>, id: &str) -> Self {
         let input = cx.new(|cx| {
+            let note = cx
+                .global::<NoteStore>()
+                .note_accessor
+                .get(id)
+                .unwrap()
+                .clone();
+
             let mut input = TextInput::new(window, cx)
                 .multi_line()
                 .h_full()
                 .placeholder("Type here");
-            input.set_text("default_value", window, cx);
+            input.set_text(note.body, window, cx);
             input
         });
         cx.subscribe_in(&input, window, Self::on_input).detach();

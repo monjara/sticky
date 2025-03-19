@@ -1,6 +1,5 @@
-use db::Db;
 use gpui::{App, Application};
-use registry::AppRegistryImpl;
+use registry::global_model::note_store::NoteStore;
 use window_editor::editor::{Editor, window_options};
 
 fn main() {
@@ -8,25 +7,20 @@ fn main() {
         cx.activate(true);
 
         gpui_component::init(cx);
+        registry::init(cx);
 
-        let db = match Db::new() {
-            Ok(client) => {
-                client.prepare_database().unwrap();
-                client
-            }
-            Err(e) => panic!("Failed to connect to database: {e}"),
-        };
-
-        cx.set_global(AppRegistryImpl::new(db.conn));
-
-        let notes = cx.global::<AppRegistryImpl>().note_handler.get_all();
+        let notes = cx.global::<NoteStore>().notes.clone();
 
         if notes.is_empty() {
-            cx.open_window(window_options(), Editor::view).unwrap();
+            //cx.open_window(window_options(), |window, cx| Editor::view(window, cx, &id))
+            //    .unwrap();
         }
 
-        for _note in notes {
-            cx.open_window(window_options(), Editor::view).unwrap();
+        for note in notes {
+            cx.open_window(window_options(), |window, cx| {
+                Editor::view(window, cx, &note.id)
+            })
+            .unwrap();
         }
     });
 }

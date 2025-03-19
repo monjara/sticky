@@ -1,25 +1,39 @@
-use std::rc::Rc;
+pub mod global_model;
 
-use adapter::repository_impl::note_repository_impl::NoteRepositoryImpl;
-use gpui::Global;
-use handler::note_handler::NoteHandler;
-use rusqlite::Connection;
+use std::collections::HashMap;
 
-#[derive(Clone)]
-pub struct AppRegistryImpl {
-    pub note_handler: NoteHandler,
+use db::Db;
+use global_model::{app_handler::AppHandler, note_store::NoteStore};
+use gpui::App;
+
+pub fn init(cx: &mut App) {
+    init_handler(cx);
+    init_store(cx);
 }
 
-impl AppRegistryImpl {
-    pub fn new(conn: Connection) -> Self {
-        let note_handler = NoteHandler::new(Rc::new(NoteRepositoryImpl::new(conn)));
-
-        Self { note_handler }
-    }
-
-    pub fn note_handler(&self) -> NoteHandler {
-        self.note_handler.clone()
-    }
+fn init_handler(cx: &mut App) {
+    let db = match Db::new() {
+        Ok(client) => {
+            client.prepare_database().unwrap();
+            client
+        }
+        Err(e) => panic!("Failed to connect to database: {e}"),
+    };
+    cx.set_global(AppHandler::new(db.conn));
 }
 
-impl Global for AppRegistryImpl {}
+fn init_store(cx: &mut App) {
+    let notes = cx.global::<AppHandler>().note_handler.get_all();
+
+    let map = notes.iter().fold(HashMap::new(), |mut map, note| {
+        map.insert(note.id.clone(), note.clone());
+        map
+    });
+
+    let note_store = NoteStore {
+        notes,
+        note_accessor: map,
+    };
+
+    cx.set_global(note_store);
+}
