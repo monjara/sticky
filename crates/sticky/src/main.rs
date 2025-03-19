@@ -19,11 +19,7 @@ fn main() {
 
         cx.set_global(AppRegistryImpl::new(db.conn));
 
-        let notes = cx
-            .global::<AppRegistryImpl>()
-            .note_respository()
-            .get_notes()
-            .unwrap();
+        let notes = cx.global::<AppRegistryImpl>().note_handler.get_all();
 
         if notes.is_empty() {
             cx.open_window(window_options(), Editor::view).unwrap();

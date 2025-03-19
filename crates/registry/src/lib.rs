@@ -2,23 +2,23 @@ use std::rc::Rc;
 
 use adapter::repository_impl::note_repository_impl::NoteRepositoryImpl;
 use gpui::Global;
-use kernel::repository::note_repository::NoteRepository;
+use handler::note_handler::NoteHandler;
 use rusqlite::Connection;
 
 #[derive(Clone)]
 pub struct AppRegistryImpl {
-    note_repository: Rc<dyn NoteRepository>,
+    pub note_handler: NoteHandler,
 }
 
 impl AppRegistryImpl {
     pub fn new(conn: Connection) -> Self {
-        let note_repository = Rc::new(NoteRepositoryImpl::new(conn));
+        let note_handler = NoteHandler::new(Rc::new(NoteRepositoryImpl::new(conn)));
 
-        Self { note_repository }
+        Self { note_handler }
     }
 
-    pub fn note_respository(&self) -> Rc<dyn NoteRepository> {
-        self.note_repository.clone()
+    pub fn note_handler(&self) -> NoteHandler {
+        self.note_handler.clone()
     }
 }
 

@@ -9,3 +9,4 @@ gpui = { workspace = true }
 rusqlite = { workspace = true }
 adapter = { workspace = true }
 kernel = { workspace = true }
+handler = { workspace = true }

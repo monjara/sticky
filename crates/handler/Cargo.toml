@@ -6,3 +6,4 @@ edition.workspace = true
 
 [dependencies]
 gpui = { workspace = true }
+kernel = { workspace = true }
