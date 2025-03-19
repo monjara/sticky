@@ -1,6 +1,6 @@
 use gpui::{
-    App, AppContext, Bounds, Context, Entity, ParentElement, Pixels, Point, Render, Size, Styled,
-    Window, WindowBounds, WindowOptions, div,
+    div, App, AppContext, Bounds, Context, Entity, ParentElement, Pixels, Point, Render, Size,
+    Styled, Window, WindowBounds, WindowOptions,
 };
 use gpui_component::input::{InputEvent, TextInput};
 

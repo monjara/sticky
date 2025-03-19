@@ -4,11 +4,11 @@ members = [
   "crates/adapter",
   "crates/db",
   "crates/debounce",
-  "crates/editor",
   "crates/kernel",
-  "crates/list",
   "crates/registry",
   "crates/sticky",
+  "crates/window-editor",
+  "crates/window-list",
 ]
 default-members = ["crates/sticky"]
 
@@ -24,10 +24,10 @@ ulid = { version = "1.2.1" }
 anyhow = { version = "1.0.97" }
 derive-new = { version = "0.7.0" }
 
-editor = { path = "crates/editor" }
 db = { path = "crates/db" }
 registry = { path = "crates/registry" }
 adapter = { path = "crates/adapter" }
 kernel = { path = "crates/kernel" }
 debounce = { path = "crates/debounce" }
-list = { path = "crates/list" }
+window-editor = { path = "crates/window-editor" }
+window-list = { path = "crates/window-list" }

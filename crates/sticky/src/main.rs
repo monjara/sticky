@@ -1,7 +1,7 @@
 use db::Db;
-use editor::editor::{Editor, window_options};
 use gpui::{App, Application};
 use registry::AppRegistryImpl;
+use window_editor::editor::{Editor, window_options};
 
 fn main() {
     Application::new().run(|cx: &mut App| {
@@ -24,8 +24,6 @@ fn main() {
             .note_respository()
             .get_notes()
             .unwrap();
-
-        println!("notes: {notes:?}");
 
         if notes.is_empty() {
             cx.open_window(window_options(), Editor::view).unwrap();

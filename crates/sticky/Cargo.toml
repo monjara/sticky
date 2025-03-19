@@ -10,6 +10,7 @@ path = "src/main.rs"
 [dependencies]
 gpui = { workspace = true }
 gpui-component = { workspace = true }
-editor = { workspace = true }
 db = { workspace = true }
 registry = { workspace = true }
+window-editor = { workspace = true }
+window-list = { workspace = true }
