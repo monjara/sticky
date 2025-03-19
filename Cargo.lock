@@ -4515,6 +4515,7 @@ name = "registry"
 version = "0.1.0"
 dependencies = [
  "adapter",
+ "gpui",
  "kernel",
  "rusqlite",
 ]

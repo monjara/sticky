@@ -15,9 +15,15 @@ fn main() {
             Err(e) => panic!("Failed to connect to database: {e}"),
         };
 
-        let app_registry = AppRegistryImpl::new(db.conn);
+        cx.set_global(AppRegistryImpl::new(db.conn));
 
-        let notes = app_registry.note_respository().get_notes().unwrap();
+        let notes = cx
+            .global::<AppRegistryImpl>()
+            .note_respository()
+            .get_notes()
+            .unwrap();
+
+        println!("notes: {notes:?}");
 
         if notes.is_empty() {
             cx.open_window(window_options(), Editor::view).unwrap();

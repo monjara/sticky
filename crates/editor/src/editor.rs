@@ -35,9 +35,7 @@ impl Editor {
         _cx: &mut Context<Self>,
     ) {
         match event {
-            InputEvent::Change(text) => {
-                println!("{text}")
-            }
+            InputEvent::Change(text) => println!("{text}"),
             InputEvent::PressEnter => println!("PressEnter"),
             InputEvent::Focus => println!("Focus"),
             InputEvent::Blur => println!("Blur"),
