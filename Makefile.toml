@@ -28,3 +28,7 @@ args = ["new", "--lib", "crates/${@}"]
 [tasks.udeps]
 command = "cargo"
 args = ["+nightly", "udeps"]
+
+[tasks.watch]
+command = "cargo"
+args = ["watch", "-x", "run"]
