@@ -7,3 +7,5 @@ edition.workspace = true
 [dependencies]
 gpui = { workspace = true }
 unicode-segmentation = { workspace = true }
+smallvec = { workspace = true }
+regex = { workspace = true }

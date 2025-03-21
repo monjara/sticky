@@ -1,8 +1,9 @@
 use gpui::App;
+use input::text_input;
 
 pub mod input;
 pub mod scroll;
 
-pub fn init(_cx: &mut App) {
-    // TODO initialize components
+pub fn init(cx: &mut App) {
+    text_input::init(cx);
 }

@@ -13,18 +13,18 @@ impl Editor {
 
     pub fn new(window: &mut Window, cx: &mut Context<Self>, id: &str) -> Self {
         let input = cx.new(|cx| {
-            let _note = cx
+            let note = cx
                 .global::<NoteStore>()
                 .note_accessor
                 .get(id)
                 .unwrap()
                 .clone();
 
-            TextInput::new(window, cx).multi_line()
+            let mut input = TextInput::new(window, cx).multi_line();
             //.h_full()
             //.placeholder("Type here");
-            //input.set_text(note.body, window, cx);
-            //input
+            input.set_text(note.body, window, cx);
+            input
         });
         cx.subscribe_in(&input, window, Self::on_input).detach();
 

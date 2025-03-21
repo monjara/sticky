@@ -2,7 +2,7 @@ use gpui::{App, Application};
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        cx.activate(true);
+        //cx.activate(true);
 
         components::init(cx);
         registry::init(cx);
