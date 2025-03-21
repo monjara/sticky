@@ -1,14 +1,8 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use gpui::App;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod input;
+pub mod scroll;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn init(_cx: &mut App) {
+    // TODO initialize components
 }
