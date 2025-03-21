@@ -55,12 +55,22 @@ impl NoteRepository for NoteRepositoryImpl {
         Ok(note)
     }
 
-    fn update_note(&self, note: Note) -> Result<Note, Box<dyn Error>> {
+    fn update_note_title(&self, note: Note) -> Result<Note, Box<dyn Error>> {
         self.connection.execute(
             "
-            update notes set title = ?1, body = ?2 where id = ?3
+            update notes set body = ?1 where id = ?2
             ",
-            (&note.title, &note.body, &note.id),
+            (&note.body, &note.id),
+        )?;
+        Ok(note)
+    }
+
+    fn update_note_body(&self, note: Note) -> Result<Note, Box<dyn Error>> {
+        self.connection.execute(
+            "
+            update notes set title = ?1 where id = ?2
+            ",
+            (&note.title, &note.id),
         )?;
         Ok(note)
     }
