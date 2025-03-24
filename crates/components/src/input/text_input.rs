@@ -612,18 +612,90 @@ impl TextInput {
         self.move_vertical(1, window, cx)
     }
     fn left(&mut self, _: &Left, window: &mut Window, cx: &mut Context<Self>) {
+        self.pause_blink_cursor(cx);
         if self.selected_range.is_empty() {
             self.move_to(self.previous_boundary(self.cursor_offset()), window, cx);
         } else {
             self.move_to(self.selected_range.start, window, cx)
         }
     }
+
     fn right(&mut self, _: &Right, window: &mut Window, cx: &mut Context<Self>) {
         if self.selected_range.is_empty() {
             self.move_to(self.next_boundary(self.selected_range.end), window, cx);
         } else {
             self.move_to(self.selected_range.end, window, cx)
         }
+    }
+
+    fn select_left(&mut self, _: &SelectLeft, window: &mut Window, cx: &mut Context<Self>) {
+        self.select_to(self.previous_boundary(self.cursor_offset()), window, cx);
+    }
+
+    fn select_right(&mut self, _: &SelectRight, window: &mut Window, cx: &mut Context<Self>) {
+        self.select_to(self.next_boundary(self.cursor_offset()), window, cx);
+    }
+
+    fn select_up(&mut self, _: &SelectUp, window: &mut Window, cx: &mut Context<Self>) {
+        if self.is_single_line() {
+            return;
+        }
+        let offset = self.start_of_line(window, cx).saturating_sub(1);
+        self.select_to(offset, window, cx);
+    }
+
+    fn select_down(&mut self, _: &SelectDown, window: &mut Window, cx: &mut Context<Self>) {
+        if self.is_single_line() {
+            return;
+        }
+        let offset = (self.end_of_line(window, cx) + 1).min(self.text.len());
+        self.select_to(self.next_boundary(offset), window, cx);
+    }
+
+    fn start_of_line(&mut self, window: &mut Window, cx: &mut Context<Self>) -> usize {
+        if self.is_single_line() {
+            return 0;
+        }
+
+        let offset = self.previous_boundary(self.cursor_offset());
+        self.text_for_range(self.range_to_utf16(&(0..offset + 1)), &mut None, window, cx)
+            .unwrap_or_default()
+            .rfind('\n')
+            .map(|i| i + 1)
+            .unwrap_or(0)
+    }
+
+    /// Get end of line
+    fn end_of_line(&mut self, window: &mut Window, cx: &mut Context<Self>) -> usize {
+        if self.is_single_line() {
+            return self.text.len();
+        }
+
+        let offset = self.next_boundary(self.cursor_offset());
+        // ignore if offset is "\n"
+        if self
+            .text_for_range(
+                self.range_to_utf16(&(offset - 1..offset)),
+                &mut None,
+                window,
+                cx,
+            )
+            .unwrap_or_default()
+            .eq("\n")
+        {
+            return offset;
+        }
+
+        self.text_for_range(
+            self.range_to_utf16(&(offset..self.text.len())),
+            &mut None,
+            window,
+            cx,
+        )
+        .unwrap_or_default()
+        .find('\n')
+        .map(|i| i + offset)
+        .unwrap_or(self.text.len())
     }
 
     fn move_vertical(&mut self, direction: i32, window: &mut Window, cx: &mut Context<Self>) {
@@ -874,6 +946,10 @@ impl Render for TextInput {
             .on_action(cx.listener(Self::down))
             .on_action(cx.listener(Self::left))
             .on_action(cx.listener(Self::right))
+            .on_action(cx.listener(Self::select_up))
+            .on_action(cx.listener(Self::select_down))
+            .on_action(cx.listener(Self::select_left))
+            .on_action(cx.listener(Self::select_right))
             .on_key_down(cx.listener(Self::on_key_down_for_blink_cursor))
             .size_full()
             .items_center()
