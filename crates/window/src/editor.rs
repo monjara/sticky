@@ -52,6 +52,11 @@ impl Render for Editor {
         _window: &mut Window,
         _cx: &mut Context<'_, Self>,
     ) -> impl gpui::IntoElement {
-        div().w_full().h_full().child(self.input.clone())
+        div()
+            .w_full()
+            .h_full()
+            .items_center()
+            .justify_center()
+            .child(self.input.clone())
     }
 }

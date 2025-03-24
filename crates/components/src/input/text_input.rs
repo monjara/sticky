@@ -272,6 +272,10 @@ impl TextInput {
         self.replace_text_in_range(Some(range), &text, window, cx);
     }
 
+    pub fn is_single_line(&self) -> bool {
+        !self.multi_line
+    }
+
     pub fn is_multi_line(&self) -> bool {
         self.multi_line
     }
@@ -347,12 +351,12 @@ impl TextInput {
         let mut y_offset = px(0.);
 
         for line in lines.iter() {
-            let line_origin = self.line_origin_with_y_offset(&mut y_offset, &line, line_height);
+            let line_origin = self.line_origin_with_y_offset(&mut y_offset, line, line_height);
             let pos = inner_position - line_origin;
             let closest_index = line.unwrapped_layout.closest_index_for_x(pos.x);
 
             // Return offset by use closest_index_for_x if is single line mode.
-            if !self.is_multi_line() {
+            if self.is_single_line() {
                 return closest_index;
             }
 
@@ -428,7 +432,7 @@ impl TextInput {
     fn unselect(&mut self, _: &mut Window, cx: &mut Context<Self>) {
         let offset = self.next_boundary(self.cursor_offset());
         self.selected_range = offset..offset;
-        cx.notify()
+        cx.notify();
     }
 
     fn next_boundary(&self, offset: usize) -> usize {
@@ -539,7 +543,7 @@ impl TextInput {
         if self.selected_range.is_empty() {
             self.update_preferred_x_offset(cx);
         }
-        cx.notify()
+        cx.notify();
     }
 
     fn previous_boundary(&self, offset: usize) -> usize {
@@ -594,6 +598,135 @@ impl TextInput {
         cx.emit(InputEvent::PressEnter);
     }
 
+    fn up(&mut self, _: &Up, window: &mut Window, cx: &mut Context<Self>) {
+        if self.is_single_line() {
+            return;
+        }
+        self.move_vertical(-1, window, cx);
+    }
+
+    fn down(&mut self, _: &Down, window: &mut Window, cx: &mut Context<Self>) {
+        if self.is_single_line() {
+            return;
+        }
+        self.move_vertical(1, window, cx)
+    }
+    fn left(&mut self, _: &Left, window: &mut Window, cx: &mut Context<Self>) {
+        if self.selected_range.is_empty() {
+            self.move_to(self.previous_boundary(self.cursor_offset()), window, cx);
+        } else {
+            self.move_to(self.selected_range.start, window, cx)
+        }
+    }
+    fn right(&mut self, _: &Right, window: &mut Window, cx: &mut Context<Self>) {
+        if self.selected_range.is_empty() {
+            self.move_to(self.next_boundary(self.selected_range.end), window, cx);
+        } else {
+            self.move_to(self.selected_range.end, window, cx)
+        }
+    }
+
+    fn move_vertical(&mut self, direction: i32, window: &mut Window, cx: &mut Context<Self>) {
+        if self.is_single_line() {
+            return;
+        }
+
+        let (Some(lines), Some(bounds)) = (&self.last_layout, &self.last_bounds) else {
+            return;
+        };
+
+        let offset = self.cursor_offset();
+        let line_height = self.last_line_height;
+
+        let (line_index, sub_line_index, pos) =
+            self.line_and_position_for_offset(offset, lines, line_height);
+
+        let Some(pos) = pos else {
+            return;
+        };
+
+        let current_x = self
+            .preferred_x_offset
+            .unwrap_or_else(|| pos.x + bounds.origin.x);
+
+        let mut new_line_index = line_index;
+        let mut new_sub_line = sub_line_index as i32;
+
+        new_sub_line += direction;
+
+        let is_first_line = new_line_index == 0 && new_sub_line < 0;
+        if direction == -1 && is_first_line {
+            // Move cursor to the beginning of the text
+            self.move_to(0, window, cx);
+            return;
+        }
+
+        let is_last_line = new_line_index == lines.len() - 1
+            && new_sub_line > lines[new_line_index].wrap_boundaries.len() as i32;
+
+        if direction == 1 && is_last_line {
+            // Move cursor to the end of the text
+            self.move_to(self.text.len(), window, cx);
+            return;
+        }
+
+        if new_sub_line < 0 {
+            if new_line_index > 0 {
+                new_line_index -= 1;
+                new_sub_line = lines[new_line_index].wrap_boundaries.len() as i32;
+            } else {
+                new_sub_line = 0;
+            }
+        } else {
+            let max_sub_line = lines[new_line_index].wrap_boundaries.len() as i32;
+            if new_sub_line > max_sub_line {
+                if new_line_index < lines.len() - 1 {
+                    new_line_index += 1;
+                    new_sub_line = 0;
+                } else {
+                    new_sub_line = max_sub_line;
+                }
+            }
+        }
+
+        if new_line_index == line_index && new_sub_line == sub_line_index as i32 {
+            return;
+        }
+
+        let target_line = &lines[new_line_index];
+        let line_x = current_x - bounds.origin.x;
+        let target_sub_line = new_sub_line as usize;
+
+        let approx_pos = point(line_x, px(target_sub_line as f32 * line_height.0));
+        let index_res = target_line.index_for_position(approx_pos, line_height);
+
+        let new_local_index = match index_res {
+            Ok(i) => i + 1,
+            Err(i) => i,
+        };
+
+        let mut prev_lines_offset = 0;
+        for (i, l) in lines.iter().enumerate() {
+            if i == new_line_index {
+                break;
+            }
+            prev_lines_offset += l.len() + 1;
+        }
+
+        let new_offset = (prev_lines_offset + new_local_index).min(self.text.len());
+        self.selected_range = new_offset..new_offset;
+        self.pause_blink_cursor(cx);
+
+        cx.notify();
+    }
+
+    fn move_to(&mut self, offset: usize, _: &mut Window, cx: &mut Context<Self>) {
+        self.selected_range = offset..offset;
+        self.pause_blink_cursor(cx);
+        self.update_preferred_x_offset(cx);
+        cx.notify();
+    }
+
     fn pause_blink_cursor(&mut self, cx: &mut Context<Self>) {
         self.blink_cursor.update(cx, |this, cx| {
             this.pause(cx);
@@ -606,7 +739,7 @@ impl TextInput {
         _: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.pause_blink_cursor(cx)
+        self.pause_blink_cursor(cx);
     }
 }
 
@@ -737,6 +870,10 @@ impl Render for TextInput {
             .on_action(cx.listener(Self::delete_beginning_of_line))
             .on_action(cx.listener(Self::delete_end_of_line))
             .on_action(cx.listener(Self::enter))
+            .on_action(cx.listener(Self::up))
+            .on_action(cx.listener(Self::down))
+            .on_action(cx.listener(Self::left))
+            .on_action(cx.listener(Self::right))
             .on_key_down(cx.listener(Self::on_key_down_for_blink_cursor))
             .size_full()
             .items_center()
@@ -754,7 +891,7 @@ impl Render for TextInput {
             )
             .when(self.multi_line, |this| {
                 this.relative()
-                    .child(div().absolute().top_0().right_0().bottom_0().left_0())
+                    .child(div().absolute().top_0().left_0().h_full().w_full())
             })
     }
 }
