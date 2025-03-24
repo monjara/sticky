@@ -2,7 +2,6 @@ use gpui::{
     App, Bounds, Corners, Element, ElementId, ElementInputHandler, Entity, GlobalElementId, Hsla,
     IntoElement, LayoutId, MouseButton, MouseMoveEvent, PaintQuad, Path, Pixels, Point, Style,
     TextAlign, TextRun, UnderlineStyle, Window, WrappedLine, fill, point, px, relative, size,
-    white,
 };
 use smallvec::SmallVec;
 
@@ -373,22 +372,13 @@ impl Element for TextElement {
         let style = window.text_style();
         let mut bounds = bounds;
 
-        let display_text = if text.is_empty() { &placeholder } else { &text };
-
-        let text_color = white();
-
-        //let (display_text, text_color) = if text.is_empty() {
-        //    (placeholder, cx.theme().muted_foreground)
-        //} else if input.masked {
-        //    (
-        //        "*".repeat(text.chars().count()).into(),
-        //
-        //        cx.theme().foreground,
-        //    )
-        //} else {
-        //    (text, cx.theme().foreground)
-        //};
-        //
+        let (display_text, text_color) = if text.is_empty() {
+            (placeholder, Hsla::white())
+        } else if input.masked {
+            ("*".repeat(text.chars().count()).into(), Hsla::white())
+        } else {
+            (text, Hsla::white())
+        };
 
         let run = TextRun {
             len: display_text.len(),

@@ -165,9 +165,7 @@ pub struct TextInput {
     pub(super) focus_handle: FocusHandle,
     pub(super) text: SharedString,
     multi_line: bool,
-    //pub(super) history: History<Change>,
     pub(super) blink_cursor: Entity<BlinkCursor>,
-    pub(super) loading: bool,
     pub(super) placeholder: SharedString,
     pub(super) selected_range: Range<usize>,
     /// Range for save the selected word, use to keep word range when drag move.
@@ -183,18 +181,10 @@ pub struct TextInput {
     /// The text bounds
     pub(super) last_bounds: Option<Bounds<Pixels>>,
     pub(super) last_selected_range: Option<Range<usize>>,
-    //pub(super) selecting: bool,
-    //pub(super) disabled: bool,
     pub(super) masked: bool,
-    //pub(super) appearance: bool,
-    pub(super) cleanable: bool,
-    //pub(super) size: Size,
     pub(super) rows: usize,
     /// For special case, e.g.: NumberInput + - button
-    pub(super) no_gap: bool,
     pub(super) height: Option<gpui::DefiniteLength>,
-    pattern: Option<regex::Regex>,
-    validate: Option<Box<dyn Fn(&str) -> bool + 'static>>,
     pub scroll_handle: ScrollHandle,
     //scrollbar_state: Rc<Cell<ScrollbarState>>,
     /// The size of the scrollable content.
@@ -235,24 +225,14 @@ impl TextInput {
             text: "".into(),
             multi_line: false,
             blink_cursor,
-            //history,
             placeholder: "".into(),
             selected_range: 0..0,
             selected_word_range: None,
             selection_reversed: false,
             marked_range: None,
             input_bounds: Bounds::default(),
-            //selecting: false,
-            //disabled: false,
             masked: false,
-            //appearance: true,
-            cleanable: false,
-            loading: false,
-            no_gap: false,
-            //size: Size::Medium,
             height: None,
-            pattern: None,
-            validate: None,
             rows: 2,
             last_layout: None,
             last_bounds: None,
@@ -260,7 +240,6 @@ impl TextInput {
             last_line_height: px(20.),
             last_cursor_offset: None,
             scroll_handle: ScrollHandle::new(),
-            //scrollbar_state: Rc::new(Cell::new(ScrollbarState::default())),
             scroll_size: gpui::size(px(0.), px(0.)),
             preferred_x_offset: None,
             _subscriptions,
@@ -348,8 +327,7 @@ impl TextInput {
         // If cursor style is IBeam, the mouse mouse position is in the middle of the cursor (This is special in OS)
 
         // The position is relative to the bounds of the text input
-        //
-        // bounds.origin:
+
         //
         // - included the input padding.
         // - included the scroll offset.
@@ -722,10 +700,9 @@ impl Render for TextInput {
                     .child(TextElement::new(cx.entity().clone())),
             )
             .when(self.multi_line, |this| {
-                //let entity_id = cx.entity().entity_id();
+                // let entity_id = cx.entity().entity_id();
                 this.relative().child(
                     div().absolute().top_0().right_0().bottom_0().left_0(), //.child()
                 )
-            })
     }
 }
