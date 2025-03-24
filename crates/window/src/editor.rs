@@ -24,6 +24,7 @@ impl Editor {
             //.h_full()
             //.placeholder("Type here");
             input.set_text(note.body, window, cx);
+            input.show_cursor(window, cx);
             input
         });
         cx.subscribe_in(&input, window, Self::on_input).detach();

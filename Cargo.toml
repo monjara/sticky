@@ -1,15 +1,15 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/adapter",
-  "crates/components",
-  "crates/db",
-  "crates/debounce",
-  "crates/handler",
-  "crates/kernel",
-  "crates/registry",
-  "crates/sticky",
-  "crates/window",
+    "crates/adapter",
+    "crates/components",
+    "crates/db",
+    "crates/debounce",
+    "crates/handler",
+    "crates/kernel",
+    "crates/registry",
+    "crates/sticky",
+    "crates/window",
 ]
 default-members = ["crates/sticky"]
 
@@ -26,6 +26,7 @@ derive-new = { version = "0.7.0" }
 unicode-segmentation = { version = "1.12.0" }
 smallvec = { version = "1.14.0" }
 regex = { version = "1.11.1" }
+smol = { version = "2.0.2" }
 
 registry = { path = "crates/registry" }
 handler = { path = "crates/handler" }

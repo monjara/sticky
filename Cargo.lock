@@ -771,6 +771,7 @@ dependencies = [
  "gpui",
  "regex",
  "smallvec",
+ "smol",
  "unicode-segmentation",
 ]
 

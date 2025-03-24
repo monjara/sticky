@@ -1,13 +1,12 @@
 use gpui::{
-    App, Bounds, Corners, Element, ElementId, ElementInputHandler, Entity, GlobalElementId,
+    App, Bounds, Corners, Element, ElementId, ElementInputHandler, Entity, GlobalElementId, Hsla,
     IntoElement, LayoutId, MouseButton, MouseMoveEvent, PaintQuad, Path, Pixels, Point, Style,
-    TextAlign, TextRun, UnderlineStyle, Window, WrappedLine, point, px, relative, size, white,
+    TextAlign, TextRun, UnderlineStyle, Window, WrappedLine, fill, point, px, relative, size,
+    white,
 };
 use smallvec::SmallVec;
 
 use super::text_input::TextInput;
-
-//use crate::ActiveTheme as _;
 
 const RIGHT_MARGIN: Pixels = px(5.);
 const BOTTOM_MARGIN: Pixels = px(20.);
@@ -21,14 +20,14 @@ impl TextElement {
         Self { input }
     }
 
-    fn paint_mouse_listeners(&mut self, window: &mut Window, _: &mut App) {
+    fn paint_mouse_listeners(&mut self, window: &mut Window, _cx: &mut App) {
         window.on_mouse_event({
             let input = self.input.clone();
 
-            move |event: &MouseMoveEvent, _, _window, cx| {
+            move |event: &MouseMoveEvent, _, window, cx| {
                 if event.pressed_button == Some(MouseButton::Left) {
-                    input.update(cx, |_input, _cx| {
-                        //input.on_drag_move(event, window, cx);
+                    input.update(cx, |input, cx| {
+                        input.on_drag_move(event, window, cx);
                     });
                 }
             }
@@ -40,14 +39,14 @@ impl TextElement {
         lines: &[WrappedLine],
         line_height: Pixels,
         bounds: &mut Bounds<Pixels>,
-        _window: &mut Window,
+        window: &mut Window,
         cx: &mut App,
     ) -> (Option<PaintQuad>, Point<Pixels>) {
         let input = self.input.read(cx);
         let selected_range = &input.selected_range;
         let cursor_offset = input.cursor_offset();
         let mut scroll_offset = input.scroll_handle.offset();
-        let cursor = None;
+        let mut cursor = None;
 
         // The cursor corresponds to the current cursor position in the text no only the line.
         let mut cursor_pos = None;
@@ -138,21 +137,20 @@ impl TextElement {
 
             bounds.origin += scroll_offset;
 
-            //if input.show_cursor(window, cx) {
-            //    // cursor blink
-            //    let cursor_height =
-            //        window.text_style().font_size.to_pixels(window.rem_size()) + px(2.);
-            //    cursor = Some(fill(
-            //        Bounds::new(
-            //            point(
-            //                bounds.left() + cursor_pos.x,
-            //                bounds.top() + cursor_pos.y + ((line_height - cursor_height) / 2.),
-            //            ),
-            //            size(px(1.), cursor_height),
-            //        ),
-            //        cx.theme().caret,
-            //    ))
-            //};
+            if input.show_cursor(window, cx) {
+                let cursor_height =
+                    window.text_style().font_size.to_pixels(window.rem_size()) + px(2.);
+                cursor = Some(fill(
+                    Bounds::new(
+                        point(
+                            bounds.left() + cursor_pos.x,
+                            bounds.top() + cursor_pos.y + ((line_height - cursor_height) / 2.),
+                        ),
+                        size(px(1.), cursor_height),
+                    ),
+                    Hsla::white(),
+                ))
+            };
         }
 
         (cursor, scroll_offset)
@@ -287,8 +285,8 @@ impl TextElement {
 pub(super) struct PrepaintState {
     lines: SmallVec<[WrappedLine; 1]>,
     cursor: Option<PaintQuad>,
-    //cursor_scroll_offset: Point<Pixels>,
-    //selection_path: Option<Path<Pixels>>,
+    cursor_scroll_offset: Point<Pixels>,
+    selection_path: Option<Path<Pixels>>,
     bounds: Bounds<Pixels>,
 }
 
@@ -471,17 +469,17 @@ impl Element for TextElement {
 
         // Calculate the scroll offset to keep the cursor in view
 
-        let (cursor, _cursor_scroll_offset) =
+        let (cursor, cursor_scroll_offset) =
             self.layout_cursor(&lines, line_height, &mut bounds, window, cx);
 
-        //let selection_path = self.layout_selections(&lines, line_height, &mut bounds, window, cx);
+        let selection_path = self.layout_selections(&lines, line_height, &mut bounds, window, cx);
 
         PrepaintState {
             bounds,
             lines,
             cursor,
-            //cursor_scroll_offset,
-            //selection_path,
+            cursor_scroll_offset,
+            selection_path,
         }
     }
 
@@ -506,9 +504,9 @@ impl Element for TextElement {
         );
 
         // Paint selections
-        // if let Some(path) = prepaint.selection_path.take() {
-        //     //window.paint_path(path, cx.theme().selection);
-        // }
+        if let Some(path) = prepaint.selection_path.take() {
+            window.paint_path(path, Hsla::white());
+        }
 
         // Paint multi line text
         let line_height = window.line_height();
@@ -552,13 +550,13 @@ impl Element for TextElement {
         self.input.update(cx, |input, _cx| {
             input.last_layout = Some(prepaint.lines.clone());
             input.last_bounds = Some(bounds);
-            //input.last_cursor_offset = Some(input.cursor_offset());
+            input.last_cursor_offset = Some(input.cursor_offset());
             input.last_line_height = line_height;
             input.input_bounds = input_bounds;
             input.last_selected_range = Some(selected_range);
-            //input
-            //    .scroll_handle
-            //    .set_offset(prepaint.cursor_scroll_offset);
+            input
+                .scroll_handle
+                .set_offset(prepaint.cursor_scroll_offset);
             input.scroll_size = scroll_size;
         });
 
