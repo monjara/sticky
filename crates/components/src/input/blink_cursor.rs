@@ -6,7 +6,7 @@ use smol::Timer;
 static INTERVAL: Duration = Duration::from_millis(500);
 static PAUSE_DELAY: Duration = Duration::from_millis(300);
 
-pub(crate) struct BlinkCursor {
+pub struct BlinkCursor {
     visible: bool,
     paused: bool,
     epoch: usize,
@@ -46,9 +46,7 @@ impl BlinkCursor {
         let epoch = self.next_epoch();
         cx.spawn(async move |this, cx| {
             Timer::after(INTERVAL).await;
-            if let Some(this) = this.upgrade() {
-                this.update(cx, |this, cx| this.blink(epoch, cx)).ok();
-            }
+            let _ = this.update(cx, |this, cx| this.blink(epoch, cx));
         })
         .detach();
     }
@@ -69,5 +67,11 @@ impl BlinkCursor {
             this.update(cx, |this, cx| this.blink(epoch, cx))
         })
         .detach();
+    }
+}
+
+impl Default for BlinkCursor {
+    fn default() -> Self {
+        Self::new()
     }
 }

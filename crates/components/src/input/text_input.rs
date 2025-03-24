@@ -701,8 +701,8 @@ impl Render for TextInput {
             )
             .when(self.multi_line, |this| {
                 // let entity_id = cx.entity().entity_id();
-                this.relative().child(
-                    div().absolute().top_0().right_0().bottom_0().left_0(), //.child()
-                )
+                this.relative()
+                    .child(div().absolute().top_0().right_0().bottom_0().left_0())
+            })
     }
 }
