@@ -20,9 +20,7 @@ impl Editor {
                 .unwrap()
                 .clone();
 
-            let mut input = TextInput::new(window, cx).multi_line();
-            //.h_full()
-            //.placeholder("Type here");
+            let mut input = TextInput::new(window, cx).multi_line().h_full();
             input.set_text(note.body, window, cx);
             input.show_cursor(window, cx);
             input

@@ -50,23 +50,23 @@ impl Element for Scrollbar {
 
     fn prepaint(
         &mut self,
-        id: Option<&gpui::GlobalElementId>,
-        bounds: gpui::Bounds<gpui::Pixels>,
-        request_layout: &mut Self::RequestLayoutState,
-        window: &mut gpui::Window,
-        cx: &mut gpui::App,
+        _id: Option<&gpui::GlobalElementId>,
+        _bounds: gpui::Bounds<gpui::Pixels>,
+        _request_layout: &mut Self::RequestLayoutState,
+        _window: &mut gpui::Window,
+        _cx: &mut gpui::App,
     ) -> Self::PrepaintState {
         PrepaintState {}
     }
 
     fn paint(
         &mut self,
-        id: Option<&gpui::GlobalElementId>,
-        bounds: gpui::Bounds<gpui::Pixels>,
-        request_layout: &mut Self::RequestLayoutState,
-        prepaint: &mut Self::PrepaintState,
-        window: &mut gpui::Window,
-        cx: &mut gpui::App,
+        _id: Option<&gpui::GlobalElementId>,
+        _bounds: gpui::Bounds<gpui::Pixels>,
+        _request_layout: &mut Self::RequestLayoutState,
+        _prepaint: &mut Self::PrepaintState,
+        _window: &mut gpui::Window,
+        _cx: &mut gpui::App,
     ) {
         todo!()
     }

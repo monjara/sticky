@@ -1,10 +1,10 @@
 use std::ops::Range;
 
 use gpui::{
-    App, AppContext, Bounds, Context, Entity, EntityInputHandler, EventEmitter, FocusHandle,
-    Focusable, InteractiveElement, KeyBinding, KeyDownEvent, MouseMoveEvent, ParentElement, Pixels,
-    Point, Render, ScrollHandle, SharedString, Styled, Subscription, UTF16Selection, Window,
-    WrappedLine, actions, div, point, prelude::FluentBuilder, px,
+    App, AppContext, Bounds, Context, DefiniteLength, Entity, EntityInputHandler, EventEmitter,
+    FocusHandle, Focusable, InteractiveElement, KeyBinding, KeyDownEvent, MouseMoveEvent,
+    ParentElement, Pixels, Point, Render, ScrollHandle, SharedString, Styled, Subscription,
+    UTF16Selection, Window, WrappedLine, actions, div, point, prelude::FluentBuilder, px, relative,
 };
 use smallvec::SmallVec;
 use unicode_segmentation::UnicodeSegmentation;
@@ -248,6 +248,16 @@ impl TextInput {
 
     pub fn multi_line(mut self) -> Self {
         self.multi_line = true;
+        self
+    }
+
+    pub fn h_full(mut self) -> Self {
+        self.height = Some(relative(1.));
+        self
+    }
+
+    pub fn h(mut self, height: impl Into<DefiniteLength>) -> Self {
+        self.height = Some(height.into());
         self
     }
 
@@ -548,6 +558,42 @@ impl TextInput {
         self.replace_text_in_range(None, "", window, cx);
     }
 
+    fn delete(&mut self, _: &Delete, window: &mut Window, cx: &mut Context<Self>) {
+        if self.selected_range.is_empty() {
+            self.select_to(self.next_boundary(self.cursor_offset()), window, cx)
+        }
+        self.replace_text_in_range(None, "", window, cx);
+    }
+
+    fn delete_beginning_of_line(
+        &mut self,
+        _: &DeleteToBeginningOfLine,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let offset = self.cursor_offset();
+        let line_start = self.text[..offset].rfind('\n').map_or(0, |i| i + 1);
+        self.replace_text_in_range(Some(line_start..offset), "", window, cx);
+    }
+
+    fn delete_end_of_line(
+        &mut self,
+        _: &DeleteToEndOfLine,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let offset = self.cursor_offset();
+        let line_end = self.text[offset..]
+            .find('\n')
+            .map_or(self.text.len(), |i| offset + i);
+        self.replace_text_in_range(Some(offset..line_end), "", window, cx);
+    }
+
+    fn enter(&mut self, _: &Enter, window: &mut Window, cx: &mut Context<Self>) {
+        self.replace_text_in_range(None, "\n", window, cx);
+        cx.emit(InputEvent::PressEnter);
+    }
+
     fn pause_blink_cursor(&mut self, cx: &mut Context<Self>) {
         self.blink_cursor.update(cx, |this, cx| {
             this.pause(cx);
@@ -687,20 +733,26 @@ impl Render for TextInput {
             .key_context(CONTEXT)
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(Self::backspace))
+            .on_action(cx.listener(Self::delete))
+            .on_action(cx.listener(Self::delete_beginning_of_line))
+            .on_action(cx.listener(Self::delete_end_of_line))
+            .on_action(cx.listener(Self::enter))
             .on_key_down(cx.listener(Self::on_key_down_for_blink_cursor))
             .size_full()
-            .when(self.multi_line, |this| this.h_auto())
             .items_center()
+            .when(self.is_multi_line(), |this| {
+                this.h_auto()
+                    .when_some(self.height, |this, height| this.h(height))
+            })
             .child(
                 div()
                     .id("TextElement")
-                    .when(self.multi_line, |this| this.h_auto())
+                    .when(self.multi_line, |this| this.h_full())
                     .flex_grow()
                     .overflow_x_hidden()
                     .child(TextElement::new(cx.entity().clone())),
             )
             .when(self.multi_line, |this| {
-                // let entity_id = cx.entity().entity_id();
                 this.relative()
                     .child(div().absolute().top_0().right_0().bottom_0().left_0())
             })
