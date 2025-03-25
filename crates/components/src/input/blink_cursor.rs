@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use gpui::Context;
+use gpui::{Context, WeakEntity};
 use smol::Timer;
 
 static INTERVAL: Duration = Duration::from_millis(500);
@@ -44,11 +44,9 @@ impl BlinkCursor {
         cx.notify();
 
         let epoch = self.next_epoch();
-        cx.spawn(async move |this, cx| {
+        cx.spawn(async move |this: WeakEntity<Self>, cx| {
             Timer::after(INTERVAL).await;
-            if let Some(this) = this.upgrade() {
-                this.update(cx, |this, cx| this.blink(epoch, cx)).ok();
-            }
+            this.update(cx, |this, cx| this.blink(epoch, cx)).ok();
         })
         .detach();
     }
@@ -64,9 +62,9 @@ impl BlinkCursor {
 
         let epoch = self.next_epoch();
 
-        cx.spawn(async move |this, cx| {
+        cx.spawn(async move |this: WeakEntity<Self>, cx| {
             Timer::after(PAUSE_DELAY).await;
-            this.update(cx, |this, cx| this.blink(epoch, cx))
+            this.update(cx, |this, cx| this.blink(epoch, cx)).ok();
         })
         .detach();
     }

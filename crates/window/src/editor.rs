@@ -77,12 +77,14 @@ impl Render for Editor {
         _cx: &mut Context<'_, Self>,
     ) -> impl gpui::IntoElement {
         div()
-            .pl_2()
             .bg(hsla(0.15, 0.96, 0.75, 1.))
             .w_full()
             .h_full()
             .items_center()
             .justify_center()
+            .pl_3()
+            .pr_2()
+            .py_2()
             .child(self.input.clone())
     }
 }
