@@ -364,7 +364,10 @@ impl TextInput {
             if let Ok(v) = index_result {
                 index += v;
                 break;
-            } else if let Ok(_) = line.index_for_position(point(px(0.), pos.y), line_height) {
+            } else if line
+                .index_for_position(point(px(0.), pos.y), line_height)
+                .is_ok()
+            {
                 // Click in the this line but not in the text, move cursor to the end of the line.
                 // The fallback index is saved in Err from `index_for_position` method.
                 index += index_result.unwrap_err();
@@ -407,7 +410,7 @@ impl TextInput {
         if self.is_multi_line() {
             let p = point(px(0.), *y_offset);
             let height = line_height + line.wrap_boundaries.len() as f32 * line_height;
-            *y_offset = *y_offset + height;
+            *y_offset += height;
             p
         } else {
             point(px(0.), px(0.))

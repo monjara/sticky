@@ -1,5 +1,3 @@
-use kernel::model;
-
 #[derive(Clone, Debug)]
 pub struct Note {
     pub id: String,
@@ -12,8 +10,32 @@ pub struct Note {
     pub is_active: bool,
 }
 
-impl From<model::note::Note> for Note {
-    fn from(note: model::note::Note) -> Self {
+impl Note {
+    pub fn new(
+        id: String,
+        title: String,
+        body: String,
+        width: f32,
+        height: f32,
+        location_x: f32,
+        location_y: f32,
+        is_active: bool,
+    ) -> Self {
+        Self {
+            id,
+            title,
+            body,
+            width,
+            height,
+            location_x,
+            location_y,
+            is_active,
+        }
+    }
+}
+
+impl From<kernel::model::note::Note> for Note {
+    fn from(note: kernel::model::note::Note) -> Self {
         Self {
             id: note.id,
             title: note.title,

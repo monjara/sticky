@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use kernel::repository::note_repository::NoteRepository;
+use kernel::{model::note::UpdateNoteBodyEvent, repository::note_repository::NoteRepository};
 
 use crate::model::note::Note;
 
@@ -19,5 +19,9 @@ impl NoteHandler {
             Ok(notes) => notes.into_iter().map(Note::from).collect(),
             Err(_) => vec![],
         }
+    }
+
+    pub fn update_note_body(&self, event: UpdateNoteBodyEvent) {
+        self.repository.update_note_body(event).unwrap();
     }
 }

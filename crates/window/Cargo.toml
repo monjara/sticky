@@ -8,3 +8,4 @@ edition.workspace = true
 gpui = { workspace = true }
 registry = { workspace = true }
 components = { workspace = true }
+kernel = {workspace = true}

@@ -1,8 +1,10 @@
 use components::input::text_input::{InputEvent, TextInput};
 use gpui::{App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, div};
-use registry::global_model::note_store::NoteStore;
+use kernel::model::note::UpdateNoteBodyEvent;
+use registry::global_model::{app_handler::AppHandler, note_store::NoteStore};
 
 pub struct Editor {
+    id: String,
     input: Entity<TextInput>,
 }
 
@@ -27,7 +29,10 @@ impl Editor {
         });
         cx.subscribe_in(&input, window, Self::on_input).detach();
 
-        Self { input }
+        Self {
+            id: id.to_string(),
+            input,
+        }
     }
 
     pub fn on_input(
@@ -35,10 +40,18 @@ impl Editor {
         _: &Entity<TextInput>,
         event: &InputEvent,
         _window: &mut Window,
-        _cx: &mut Context<Self>,
+        cx: &mut Context<Self>,
     ) {
         match event {
-            InputEvent::Change(text) => println!("{text}"),
+            InputEvent::Change(text) => {
+                println!("{text}");
+                cx.global::<AppHandler>()
+                    .note_handler()
+                    .update_note_body(UpdateNoteBodyEvent {
+                        id: self.id.to_string(),
+                        body: text.to_string(),
+                    });
+            }
             InputEvent::PressEnter => println!("PressEnter"),
             InputEvent::Focus => println!("Focus"),
             InputEvent::Blur => println!("Blur"),

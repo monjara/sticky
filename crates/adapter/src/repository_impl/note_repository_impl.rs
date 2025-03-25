@@ -1,7 +1,10 @@
 use std::error::Error;
 
 use derive_new::new;
-use kernel::{model::note::Note, repository::note_repository::NoteRepository};
+use kernel::{
+    model::note::{CreateNoteEvent, Note, UpdateNoteBodyEvent, UpdateNoteTitleEvent},
+    repository::note_repository::NoteRepository,
+};
 use rusqlite::Connection;
 
 #[derive(new)]
@@ -45,34 +48,52 @@ impl NoteRepository for NoteRepositoryImpl {
         Ok(notes)
     }
 
-    fn create_note(&self, note: Note) -> Result<Note, Box<dyn Error>> {
+    fn create_note(&self, event: CreateNoteEvent) -> Result<Note, Box<dyn Error>> {
         self.connection.execute(
             "
-            insert into notes (id, title, body) values (?1, ?2, ?3)
+            insert into notes (
+              id
+            , title
+            , body
+            , is_active
+            , width
+            , height
+            , location_x
+            , location_y
+            ) values ($1, $2, $3, $4, $5, $6, $7, $8)
             ",
-            (&note.id, &note.title, &note.body),
+            (
+                &event.id,
+                &event.title,
+                &event.body,
+                &event.is_active,
+                &event.width,
+                &event.height,
+                &event.location_x,
+                &event.location_y,
+            ),
         )?;
-        Ok(note)
+        Ok(Note::from(event))
     }
 
-    fn update_note_title(&self, note: Note) -> Result<Note, Box<dyn Error>> {
-        self.connection.execute(
-            "
-            update notes set body = ?1 where id = ?2
-            ",
-            (&note.body, &note.id),
-        )?;
-        Ok(note)
-    }
-
-    fn update_note_body(&self, note: Note) -> Result<Note, Box<dyn Error>> {
+    fn update_note_title(&self, event: UpdateNoteTitleEvent) -> Result<String, Box<dyn Error>> {
         self.connection.execute(
             "
             update notes set title = ?1 where id = ?2
             ",
-            (&note.title, &note.id),
+            (&event.title, &event.id),
         )?;
-        Ok(note)
+        Ok(event.id)
+    }
+
+    fn update_note_body(&self, event: UpdateNoteBodyEvent) -> Result<String, Box<dyn Error>> {
+        self.connection.execute(
+            "
+            update notes set body = ?1 where id = ?2
+            ",
+            (&event.body, &event.id),
+        )?;
+        Ok(event.id)
     }
 
     fn delete_note_by_id(&self, id: i32) -> Result<(), Box<dyn Error>> {
