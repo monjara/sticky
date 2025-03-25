@@ -1,15 +1,14 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/adapter",
-    "crates/components",
-    "crates/db",
-    "crates/debounce",
-    "crates/handler",
-    "crates/kernel",
-    "crates/registry",
-    "crates/sticky",
-    "crates/window",
+  "crates/adapter",
+  "crates/db",
+  "crates/debounce",
+  "crates/handler",
+  "crates/kernel",
+  "crates/registry",
+  "crates/sticky",
+  "crates/window",
 ]
 default-members = ["crates/sticky"]
 
@@ -18,15 +17,12 @@ publish = false
 edition = "2024"
 
 [workspace.dependencies]
-gpui = { git = "https://github.com/zed-industries/zed" }
+gpui = { git = "https://github.com/huacnlee/zed.git", branch = "webview" }
+gpui-component = { git = "https://github.com/longbridge/gpui-component.git" }
 rusqlite = { version = "0.34.0", features = ["bundled"] }
 ulid = { version = "1.2.1" }
 anyhow = { version = "1.0.97" }
 derive-new = { version = "0.7.0" }
-unicode-segmentation = { version = "1.12.0" }
-smallvec = { version = "1.14.0" }
-regex = { version = "1.11.1" }
-smol = { version = "2.0.2" }
 
 registry = { path = "crates/registry" }
 handler = { path = "crates/handler" }
@@ -35,4 +31,3 @@ kernel = { path = "crates/kernel" }
 db = { path = "crates/db" }
 debounce = { path = "crates/debounce" }
 window = { path = "crates/window" }
-components = { path = "crates/components" }

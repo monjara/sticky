@@ -6,6 +6,6 @@ edition.workspace = true
 
 [dependencies]
 gpui = { workspace = true }
+gpui-component = { workspace = true }
 registry = { workspace = true }
-components = { workspace = true }
-kernel = {workspace = true}
+kernel = { workspace = true }

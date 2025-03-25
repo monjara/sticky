@@ -1,5 +1,7 @@
-use components::input::text_input::{InputEvent, TextInput};
-use gpui::{App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, div, hsla};
+use gpui::{
+    App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, black, div, hsla,
+};
+use gpui_component::input::{InputEvent, TextInput};
 use kernel::model::note::{UpdateNoteBodyEvent, UpdateNoteBoundsEvent};
 use registry::global_model::{app_handler::AppHandler, note_store::NoteStore};
 
@@ -33,9 +35,11 @@ impl Editor {
                 .unwrap()
                 .clone();
 
-            let mut input = TextInput::new(window, cx).multi_line().h_full();
+            let mut input = TextInput::new(window, cx)
+                .multi_line()
+                .h_full()
+                .appearance(false);
             input.set_text(note.body, window, cx);
-            input.show_cursor(window, cx);
             input
         });
         cx.subscribe_in(&input, window, Self::on_input).detach();
@@ -53,19 +57,13 @@ impl Editor {
         _window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        match event {
-            InputEvent::Change(text) => {
-                println!("{text}");
-                cx.global::<AppHandler>()
-                    .note_handler()
-                    .update_note_body(UpdateNoteBodyEvent {
-                        id: self.id.to_string(),
-                        body: text.to_string(),
-                    });
-            }
-            _ => {} //InputEvent::PressEnter => println!("PressEnter"),
-                    //InputEvent::Focus => println!("Focus"),
-                    //InputEvent::Blur => println!("Blur"),
+        if let InputEvent::Change(text) = event {
+            cx.global::<AppHandler>()
+                .note_handler()
+                .update_note_body(UpdateNoteBodyEvent {
+                    id: self.id.to_string(),
+                    body: text.to_string(),
+                });
         };
     }
 }
@@ -78,13 +76,16 @@ impl Render for Editor {
     ) -> impl gpui::IntoElement {
         div()
             .bg(hsla(0.15, 0.96, 0.75, 1.))
+            .text_color(black())
+            .text_decoration_color(black())
+            .opacity(1.)
             .w_full()
             .h_full()
             .items_center()
             .justify_center()
-            .pl_3()
-            .pr_2()
-            .py_2()
+            //.pl_3()
+            //.pr_2()
+            //.py_2()
             .child(self.input.clone())
     }
 }
