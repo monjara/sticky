@@ -19,10 +19,9 @@ pub fn init(cx: &mut App) {
     for note in notes {
         let location = Location::new(note.location_x, note.location_y);
         let size = WindowSize::new(note.width, note.height);
-        cx.open_window(
-            make_editor_option(&note.title, location, size),
-            |window, cx| Editor::view(window, cx, &note.id),
-        )
+        cx.open_window(make_editor_option(location, size), |window, cx| {
+            Editor::view(window, cx, &note.id)
+        })
         .unwrap();
     }
 }

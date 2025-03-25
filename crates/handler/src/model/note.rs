@@ -1,7 +1,6 @@
 #[derive(Clone, Debug)]
 pub struct Note {
     pub id: String,
-    pub title: String,
     pub body: String,
     pub width: f32,
     pub height: f32,
@@ -13,7 +12,6 @@ pub struct Note {
 impl Note {
     pub fn new(
         id: String,
-        title: String,
         body: String,
         width: f32,
         height: f32,
@@ -23,7 +21,6 @@ impl Note {
     ) -> Self {
         Self {
             id,
-            title,
             body,
             width,
             height,
@@ -38,7 +35,6 @@ impl From<kernel::model::note::Note> for Note {
     fn from(note: kernel::model::note::Note) -> Self {
         Self {
             id: note.id,
-            title: note.title,
             body: note.body,
             width: note.width,
             height: note.height,

@@ -3,7 +3,6 @@ use gpui::{Bounds, Pixels, Point, Size};
 #[derive(Clone, Debug)]
 pub struct Note {
     pub id: String,
-    pub title: String,
     pub body: String,
     pub width: f32,
     pub height: f32,
@@ -21,7 +20,6 @@ impl From<CreateNoteEvent> for Note {
 
         Self {
             id: note.id,
-            title: note.title,
             body: note.body,
             width,
             height,
@@ -35,7 +33,6 @@ impl From<CreateNoteEvent> for Note {
 #[derive(Clone, Debug)]
 pub struct CreateNoteEvent {
     pub id: String,
-    pub title: String,
     pub body: String,
     pub bounds: Bounds<f32>,
     pub is_active: bool,
@@ -45,7 +42,6 @@ impl From<Note> for CreateNoteEvent {
     fn from(note: Note) -> Self {
         Self {
             id: note.id,
-            title: note.title,
             body: note.body,
             bounds: Bounds {
                 origin: Point {
@@ -60,12 +56,6 @@ impl From<Note> for CreateNoteEvent {
             is_active: note.is_active,
         }
     }
-}
-
-#[derive(Clone, Debug)]
-pub struct UpdateNoteTitleEvent {
-    pub id: String,
-    pub title: String,
 }
 
 #[derive(Clone, Debug)]

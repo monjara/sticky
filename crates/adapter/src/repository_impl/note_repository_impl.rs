@@ -2,9 +2,7 @@ use std::error::Error;
 
 use derive_new::new;
 use kernel::{
-    model::note::{
-        CreateNoteEvent, Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent, UpdateNoteTitleEvent,
-    },
+    model::note::{CreateNoteEvent, Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
     repository::note_repository::NoteRepository,
 };
 use rusqlite::Connection;
@@ -20,7 +18,6 @@ impl NoteRepository for NoteRepositoryImpl {
             "
             SELECT
               id
-            , title
             , body
             , width
             , height
@@ -36,13 +33,12 @@ impl NoteRepository for NoteRepositoryImpl {
             .query_map([], |row| {
                 Ok(Note {
                     id: row.get(0)?,
-                    title: row.get(1)?,
-                    body: row.get(2)?,
-                    width: row.get(3)?,
-                    height: row.get(4)?,
-                    location_x: row.get(5)?,
-                    location_y: row.get(6)?,
-                    is_active: row.get(7)?,
+                    body: row.get(1)?,
+                    width: row.get(2)?,
+                    height: row.get(3)?,
+                    location_x: row.get(4)?,
+                    location_y: row.get(5)?,
+                    is_active: row.get(6)?,
                 })
             })?
             .map(|note| note.unwrap())
@@ -57,18 +53,16 @@ impl NoteRepository for NoteRepositoryImpl {
             "
             insert into notes (
               id
-            , title
             , body
             , is_active
             , width
             , height
             , location_x
             , location_y
-            ) values ($1, $2, $3, $4, $5, $6, $7, $8)
+            ) values ($1, $2, $3, $4, $5, $6, $7)
             ",
             (
                 &note.id,
-                &note.title,
                 &note.body,
                 &note.is_active,
                 &note.width,
@@ -78,16 +72,6 @@ impl NoteRepository for NoteRepositoryImpl {
             ),
         )?;
         Ok(note)
-    }
-
-    fn update_note_title(&self, event: UpdateNoteTitleEvent) -> Result<String, Box<dyn Error>> {
-        self.connection.execute(
-            "
-            update notes set title = ?1 where id = ?2
-            ",
-            (&event.title, &event.id),
-        )?;
-        Ok(event.id)
     }
 
     fn update_note_body(&self, event: UpdateNoteBodyEvent) -> Result<String, Box<dyn Error>> {

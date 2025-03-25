@@ -22,7 +22,6 @@ impl Db {
             "
             CREATE TABLE IF NOT EXISTS notes (
               id TEXT NOT NULL
-            , title TEXT NOT NULL
             , body TEXT NOT NULL
             , width INTEGER NOT NULL
             , height INTEGER NOT NULL
