@@ -1,6 +1,6 @@
 use components::input::text_input::{InputEvent, TextInput};
-use gpui::{App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, div};
-use kernel::model::note::UpdateNoteBodyEvent;
+use gpui::{App, AppContext, Context, Entity, ParentElement, Render, Styled, Window, div, hsla};
+use kernel::model::note::{UpdateNoteBodyEvent, UpdateNoteBoundsEvent};
 use registry::global_model::{app_handler::AppHandler, note_store::NoteStore};
 
 pub struct Editor {
@@ -14,6 +14,17 @@ impl Editor {
     }
 
     pub fn new(window: &mut Window, cx: &mut Context<Self>, id: &str) -> Self {
+        cx.observe_window_bounds(window, |this, window, cx| {
+            let bounds = window.bounds();
+            cx.global::<AppHandler>()
+                .note_handler()
+                .update_note_bounds(UpdateNoteBoundsEvent {
+                    id: this.id.clone(),
+                    bounds,
+                });
+        })
+        .detach();
+
         let input = cx.new(|cx| {
             let note = cx
                 .global::<NoteStore>()
@@ -52,9 +63,9 @@ impl Editor {
                         body: text.to_string(),
                     });
             }
-            InputEvent::PressEnter => println!("PressEnter"),
-            InputEvent::Focus => println!("Focus"),
-            InputEvent::Blur => println!("Blur"),
+            _ => {} //InputEvent::PressEnter => println!("PressEnter"),
+                    //InputEvent::Focus => println!("Focus"),
+                    //InputEvent::Blur => println!("Blur"),
         };
     }
 }
@@ -66,6 +77,8 @@ impl Render for Editor {
         _cx: &mut Context<'_, Self>,
     ) -> impl gpui::IntoElement {
         div()
+            .pl_2()
+            .bg(hsla(0.15, 0.96, 0.75, 1.))
             .w_full()
             .h_full()
             .items_center()

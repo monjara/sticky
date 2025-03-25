@@ -1,7 +1,7 @@
 use gpui::{
     App, Bounds, Corners, Element, ElementId, ElementInputHandler, Entity, GlobalElementId, Hsla,
     IntoElement, LayoutId, MouseButton, MouseMoveEvent, PaintQuad, Path, Pixels, Point, Style,
-    TextAlign, TextRun, UnderlineStyle, Window, WrappedLine, fill, point, px, relative, size,
+    TextAlign, TextRun, UnderlineStyle, Window, WrappedLine, fill, hsla, point, px, relative, size,
 };
 use smallvec::SmallVec;
 
@@ -147,7 +147,7 @@ impl TextElement {
                         ),
                         size(px(1.), cursor_height),
                     ),
-                    Hsla::white(),
+                    hsla(240.0 / 360., 10. / 100., 3.9 / 100., 1.),
                 ))
             };
         }
@@ -373,11 +373,9 @@ impl Element for TextElement {
         let mut bounds = bounds;
 
         let (display_text, text_color) = if text.is_empty() {
-            (placeholder, Hsla::white())
-        } else if input.masked {
-            ("*".repeat(text.chars().count()).into(), Hsla::white())
+            (placeholder, Hsla::black())
         } else {
-            (text, Hsla::white())
+            (text, Hsla::black())
         };
 
         let run = TextRun {
@@ -495,7 +493,8 @@ impl Element for TextElement {
 
         // Paint selections
         if let Some(path) = prepaint.selection_path.take() {
-            window.paint_path(path, Hsla::white());
+            window.paint_path(path, hsla(211.0 / 360., 97.0 / 100., 85.0 / 100., 0.5));
+            //hsla(240.0 / 360., 10. / 100., 3.9 / 100., 1.));
         }
 
         // Paint multi line text
@@ -503,14 +502,6 @@ impl Element for TextElement {
         let origin = bounds.origin;
 
         let mut offset_y = px(0.);
-        if self.input.read(cx).masked {
-            // Move down offset for vertical centering the *****
-            if cfg!(target_os = "macos") {
-                offset_y = px(3.);
-            } else {
-                offset_y = px(2.5);
-            }
-        }
         for line in prepaint.lines.iter() {
             let p = point(origin.x, origin.y + offset_y);
             _ = line.paint(p, line_height, TextAlign::Left, None, window, cx);

@@ -2,7 +2,9 @@ use std::error::Error;
 
 use derive_new::new;
 use kernel::{
-    model::note::{CreateNoteEvent, Note, UpdateNoteBodyEvent, UpdateNoteTitleEvent},
+    model::note::{
+        CreateNoteEvent, Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent, UpdateNoteTitleEvent,
+    },
     repository::note_repository::NoteRepository,
 };
 use rusqlite::Connection;
@@ -49,6 +51,8 @@ impl NoteRepository for NoteRepositoryImpl {
     }
 
     fn create_note(&self, event: CreateNoteEvent) -> Result<Note, Box<dyn Error>> {
+        let note = Note::from(event);
+
         self.connection.execute(
             "
             insert into notes (
@@ -63,17 +67,17 @@ impl NoteRepository for NoteRepositoryImpl {
             ) values ($1, $2, $3, $4, $5, $6, $7, $8)
             ",
             (
-                &event.id,
-                &event.title,
-                &event.body,
-                &event.is_active,
-                &event.width,
-                &event.height,
-                &event.location_x,
-                &event.location_y,
+                &note.id,
+                &note.title,
+                &note.body,
+                &note.is_active,
+                &note.width,
+                &note.height,
+                &note.location_x,
+                &note.location_y,
             ),
         )?;
-        Ok(Note::from(event))
+        Ok(note)
     }
 
     fn update_note_title(&self, event: UpdateNoteTitleEvent) -> Result<String, Box<dyn Error>> {
@@ -92,6 +96,27 @@ impl NoteRepository for NoteRepositoryImpl {
             update notes set body = ?1 where id = ?2
             ",
             (&event.body, &event.id),
+        )?;
+        Ok(event.id)
+    }
+
+    fn update_note_bounds(&self, event: UpdateNoteBoundsEvent) -> Result<String, Box<dyn Error>> {
+        self.connection.execute(
+            "
+            update notes set
+              width = ?1
+            , height = ?2
+            , location_x = ?3
+            , location_y = ?4
+            where id = ?5
+            ",
+            (
+                &f32::from(event.bounds.size.width),
+                &f32::from(event.bounds.size.height),
+                &f32::from(event.bounds.origin.x),
+                &f32::from(event.bounds.origin.y),
+                &event.id,
+            ),
         )?;
         Ok(event.id)
     }

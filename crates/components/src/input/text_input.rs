@@ -181,7 +181,6 @@ pub struct TextInput {
     /// The text bounds
     pub(super) last_bounds: Option<Bounds<Pixels>>,
     pub(super) last_selected_range: Option<Range<usize>>,
-    pub(super) masked: bool,
     pub(super) rows: usize,
     /// For special case, e.g.: NumberInput + - button
     pub(super) height: Option<gpui::DefiniteLength>,
@@ -231,7 +230,6 @@ impl TextInput {
             selection_reversed: false,
             marked_range: None,
             input_bounds: Bounds::default(),
-            masked: false,
             height: None,
             rows: 2,
             last_layout: None,

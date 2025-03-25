@@ -1,6 +1,9 @@
 use std::rc::Rc;
 
-use kernel::{model::note::UpdateNoteBodyEvent, repository::note_repository::NoteRepository};
+use kernel::{
+    model::note::{UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
+    repository::note_repository::NoteRepository,
+};
 
 use crate::model::note::Note;
 
@@ -23,5 +26,9 @@ impl NoteHandler {
 
     pub fn update_note_body(&self, event: UpdateNoteBodyEvent) {
         self.repository.update_note_body(event).unwrap();
+    }
+
+    pub fn update_note_bounds(&self, event: UpdateNoteBoundsEvent) {
+        self.repository.update_note_bounds(event).unwrap();
     }
 }
