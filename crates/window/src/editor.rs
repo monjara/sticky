@@ -83,6 +83,7 @@ impl Editor {
 
     pub fn new(window: &mut Window, cx: &mut Context<Self>, id: &str) -> Self {
         let focus_handle = cx.focus_handle();
+
         cx.observe_window_bounds(window, |this, window, cx| {
             let bounds = window.bounds();
             cx.global::<AppHandler>()
@@ -192,6 +193,14 @@ impl Editor {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             ..Default::default()
         };
+
+        cx.global::<AppHandler>()
+            .note_handler()
+            .update_note_bounds(UpdateNoteBoundsEvent {
+                id: self.id.clone(),
+                bounds,
+            });
+
         window.remove_window();
         cx.open_window(options, |window, cx| Self::view(window, cx, &self.id))
             .unwrap();
@@ -242,6 +251,13 @@ impl Editor {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             ..Default::default()
         };
+
+        cx.global::<AppHandler>()
+            .note_handler()
+            .update_note_bounds(UpdateNoteBoundsEvent {
+                id: self.id.clone(),
+                bounds,
+            });
         window.remove_window();
         cx.open_window(options, |window, cx| Self::view(window, cx, &self.id))
             .unwrap();
@@ -304,6 +320,12 @@ impl Editor {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             ..Default::default()
         };
+        cx.global::<AppHandler>()
+            .note_handler()
+            .update_note_bounds(UpdateNoteBoundsEvent {
+                id: self.id.clone(),
+                bounds,
+            });
         window.remove_window();
         cx.open_window(options, |window, cx| Self::view(window, cx, &self.id))
             .unwrap();
