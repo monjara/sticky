@@ -1,17 +1,32 @@
 use gpui::{
     App, AppContext, Context, Entity, FocusHandle, Focusable, InteractiveElement, KeyBinding,
-    ParentElement, Render, Styled, Window, actions, black, div, hsla,
+    ParentElement, Pixels, Render, Styled, Window, WindowBounds, WindowOptions, actions, black,
+    div, hsla,
 };
 use gpui_component::input::{InputEvent, TextInput};
 use kernel::model::note::{UpdateNoteBodyEvent, UpdateNoteBoundsEvent};
-use registry::{
-    add_note,
-    global_model::{app_handler::AppHandler, note_store::NoteStore},
-};
+use registry::{add_note, global_model::app_handler::AppHandler};
 
 const CONTEXT: &str = "Editor";
 
-actions!(editor, [NewEditor, CloseEditor]);
+enum Direction {
+    Up,
+    Down,
+    Right,
+    Left,
+}
+
+actions!(
+    editor,
+    [
+        NewEditor,
+        CloseEditor,
+        MoveWindowUp,
+        MoveWindowDown,
+        MoveWindowRight,
+        MoveWindowLeft
+    ]
+);
 
 pub fn init(cx: &mut App) {
     cx.bind_keys([
@@ -19,6 +34,14 @@ pub fn init(cx: &mut App) {
         KeyBinding::new("cmd-n", NewEditor, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
         KeyBinding::new("cmd-w", CloseEditor, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-k", MoveWindowUp, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-j", MoveWindowDown, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-l", MoveWindowRight, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-h", MoveWindowLeft, Some(CONTEXT)),
     ]);
 }
 
@@ -48,11 +71,10 @@ impl Editor {
 
         let input = cx.new(|cx| {
             let note = cx
-                .global::<NoteStore>()
-                .note_accessor
-                .get(id)
-                .unwrap()
-                .clone();
+                .global::<AppHandler>()
+                .note_handler()
+                .get_by_id(id)
+                .unwrap();
 
             let mut input = TextInput::new(window, cx)
                 .multi_line()
@@ -99,6 +121,56 @@ impl Editor {
             .toggle_note_active(&self.id.to_string());
         window.remove_window();
     }
+
+    fn move_window_up(&mut self, _: &MoveWindowUp, window: &mut Window, cx: &mut Context<Self>) {
+        self.move_winow(Direction::Up, window, cx);
+    }
+
+    fn move_window_down(
+        &mut self,
+        _: &MoveWindowDown,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.move_winow(Direction::Down, window, cx);
+    }
+
+    fn move_window_right(
+        &mut self,
+        _: &MoveWindowRight,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.move_winow(Direction::Right, window, cx);
+    }
+
+    fn move_window_left(
+        &mut self,
+        _: &MoveWindowLeft,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.move_winow(Direction::Left, window, cx);
+    }
+
+    fn move_winow(&self, direction: Direction, window: &mut Window, cx: &mut Context<Self>) {
+        let mut bounds = window.bounds();
+        match direction {
+            Direction::Up => bounds.origin.y -= Pixels::from(20.),
+            Direction::Down => bounds.origin.y += Pixels::from(20.),
+            Direction::Right => bounds.origin.x += Pixels::from(20.),
+            Direction::Left => bounds.origin.x -= Pixels::from(20.),
+        }
+        bounds.size = window.viewport_size();
+
+        let options = WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(bounds)),
+            ..Default::default()
+        };
+        window.remove_window();
+        cx.open_window(options, |window, cx| Self::view(window, cx, &self.id))
+            .unwrap();
+    }
 }
 
 impl Focusable for Editor {
@@ -118,6 +190,10 @@ impl Render for Editor {
             .track_focus(&self.focus_handle.clone())
             .on_action(cx.listener(Self::new_editor))
             .on_action(cx.listener(Self::close_editor))
+            .on_action(cx.listener(Self::move_window_up))
+            .on_action(cx.listener(Self::move_window_down))
+            .on_action(cx.listener(Self::move_window_right))
+            .on_action(cx.listener(Self::move_window_left))
             .bg(hsla(0.15, 0.96, 0.75, 1.))
             .text_color(black())
             .text_decoration_color(black())

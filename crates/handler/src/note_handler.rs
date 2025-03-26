@@ -29,6 +29,14 @@ impl NoteHandler {
         }
     }
 
+    pub fn get_by_id(&self, id: &str) -> Option<Note> {
+        if let Ok(note) = self.repository.get_note_by_id(id) {
+            note.map(Note::from)
+        } else {
+            None
+        }
+    }
+
     pub fn update_note_body(&self, event: UpdateNoteBodyEvent) {
         self.repository.update_note_body(event).unwrap();
     }
