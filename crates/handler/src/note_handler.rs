@@ -17,6 +17,11 @@ impl NoteHandler {
         Self { repository }
     }
 
+    pub fn create_note(&self) -> Note {
+        let note = self.repository.create_note().unwrap();
+        Note::from(note)
+    }
+
     pub fn get_all(&self) -> Vec<Note> {
         match self.repository.get_notes() {
             Ok(notes) => notes.into_iter().map(Note::from).collect(),
@@ -30,5 +35,9 @@ impl NoteHandler {
 
     pub fn update_note_bounds(&self, event: UpdateNoteBoundsEvent) {
         self.repository.update_note_bounds(event).unwrap();
+    }
+
+    pub fn delete_note(&self, id: &str) {
+        self.repository.delete_note_by_id(id).unwrap();
     }
 }

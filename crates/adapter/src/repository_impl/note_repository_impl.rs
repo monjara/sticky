@@ -1,8 +1,9 @@
 use std::error::Error;
 
+use db::utils::gen_id;
 use derive_new::new;
 use kernel::{
-    model::note::{CreateNoteEvent, Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
+    model::note::{Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
     repository::note_repository::NoteRepository,
 };
 use rusqlite::Connection;
@@ -46,10 +47,47 @@ impl NoteRepository for NoteRepositoryImpl {
         Ok(notes)
     }
 
-    fn create_note(&self, event: CreateNoteEvent) -> Result<Note, Box<dyn Error>> {
-        let note = Note::from(event);
+    fn get_note_by_id(&self, id: &str) -> Result<Option<Note>, Box<dyn Error>> {
+        let mut stmt = self.connection.prepare(
+            "
+            SELECT
+              id
+            , body
+            , width
+            , height
+            , location_x
+            , location_y
+            , is_active
+            FROM notes
+            WHERE id = ?1
+            ",
+        )?;
 
-        self.connection.execute(
+        let note = stmt
+            .query_map([id], |row| {
+                Ok(Note {
+                    id: row.get(0)?,
+                    body: row.get(1)?,
+                    width: row.get(2)?,
+                    height: row.get(3)?,
+                    location_x: row.get(4)?,
+                    location_y: row.get(5)?,
+                    is_active: row.get(6)?,
+                })
+            })?
+            .find(|note| note.is_ok())
+            .unwrap();
+
+        if let Ok(note) = note {
+            Ok(Some(note))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn create_note(&self) -> Result<Note, Box<dyn Error>> {
+        let id = gen_id();
+        let _ = self.connection.execute(
             "
             insert into notes (
               id
@@ -61,16 +99,9 @@ impl NoteRepository for NoteRepositoryImpl {
             , location_y
             ) values ($1, $2, $3, $4, $5, $6, $7)
             ",
-            (
-                &note.id,
-                &note.body,
-                &note.is_active,
-                &note.width,
-                &note.height,
-                &note.location_x,
-                &note.location_y,
-            ),
+            (&id, "", true, 200, 200, 200, 200),
         )?;
+        let note = self.get_note_by_id(&id)?.unwrap();
         Ok(note)
     }
 
@@ -105,7 +136,7 @@ impl NoteRepository for NoteRepositoryImpl {
         Ok(event.id)
     }
 
-    fn delete_note_by_id(&self, id: i32) -> Result<(), Box<dyn Error>> {
+    fn delete_note_by_id(&self, id: &str) -> Result<(), Box<dyn Error>> {
         self.connection.execute(
             "
             delete from notes where id = ?1

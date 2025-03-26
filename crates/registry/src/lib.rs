@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use db::Db;
 use global_model::{app_handler::AppHandler, note_store::NoteStore};
 use gpui::App;
+use handler::model::note::Note;
 
 pub fn init(cx: &mut App) {
     init_handler(cx);
@@ -22,7 +23,7 @@ fn init_handler(cx: &mut App) {
     cx.set_global(AppHandler::new(db.conn));
 }
 
-fn init_store(cx: &mut App) {
+pub fn init_store(cx: &mut App) {
     let notes = cx.global::<AppHandler>().note_handler.get_all();
 
     let map = notes.iter().fold(HashMap::new(), |mut map, note| {
@@ -32,8 +33,16 @@ fn init_store(cx: &mut App) {
 
     let note_store = NoteStore {
         notes,
+        new_notes: vec![],
         note_accessor: map,
     };
 
     cx.set_global(note_store);
+}
+
+pub fn add_note(cx: &mut App, note: Note) {
+    cx.global_mut::<NoteStore>()
+        .note_accessor
+        .insert(note.id.clone(), note.clone());
+    cx.global_mut::<NoteStore>().new_notes.push(note);
 }
