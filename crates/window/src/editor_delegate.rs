@@ -34,6 +34,10 @@ impl EditorDelegate {
     }
 
     fn render_note(cx: &mut App, note: &Note) {
+        if !note.is_active {
+            return;
+        }
+
         let location = Location::new(note.location_x, note.location_y);
         let size = WindowSize::new(note.width, note.height);
         cx.open_window(make_editor_option(location, size), |window, cx| {

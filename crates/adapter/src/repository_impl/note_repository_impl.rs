@@ -3,7 +3,7 @@ use std::error::Error;
 use db::utils::gen_id;
 use derive_new::new;
 use kernel::{
-    model::note::{Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
+    model::note::{Note, UpdateNoteActiveEvent, UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
     repository::note_repository::NoteRepository,
 };
 use rusqlite::Connection;
@@ -134,6 +134,16 @@ impl NoteRepository for NoteRepositoryImpl {
             ),
         )?;
         Ok(event.id)
+    }
+
+    fn update_note_active(&self, event: UpdateNoteActiveEvent) -> Result<(), Box<dyn Error>> {
+        self.connection.execute(
+            "
+            update notes set is_active = ?1 where id = ?2
+            ",
+            (&f32::from(event.is_active), &event.id),
+        )?;
+        Ok(())
     }
 
     fn delete_note_by_id(&self, id: &str) -> Result<(), Box<dyn Error>> {

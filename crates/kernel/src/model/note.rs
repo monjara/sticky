@@ -22,3 +22,9 @@ pub struct UpdateNoteBoundsEvent {
     pub id: String,
     pub bounds: Bounds<Pixels>,
 }
+
+#[derive(Clone, Debug)]
+pub struct UpdateNoteActiveEvent {
+    pub id: String,
+    pub is_active: bool,
+}

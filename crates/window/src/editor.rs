@@ -11,14 +11,14 @@ use registry::{
 
 const CONTEXT: &str = "Editor";
 
-actions!(editor, [NewEditor, DeleteEditor]);
+actions!(editor, [NewEditor, CloseEditor]);
 
 pub fn init(cx: &mut App) {
     cx.bind_keys([
         #[cfg(target_os = "macos")]
         KeyBinding::new("cmd-n", NewEditor, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
-        KeyBinding::new("cmd-shift-n", DeleteEditor, Some(CONTEXT)),
+        KeyBinding::new("cmd-w", CloseEditor, Some(CONTEXT)),
     ]);
 }
 
@@ -93,10 +93,11 @@ impl Editor {
         add_note(cx, note);
     }
 
-    fn delete_editor(&mut self, _: &DeleteEditor, _window: &mut Window, cx: &mut Context<Self>) {
+    fn close_editor(&mut self, _: &CloseEditor, window: &mut Window, cx: &mut Context<Self>) {
         cx.global::<AppHandler>()
             .note_handler()
-            .delete_note(&self.id);
+            .toggle_note_active(&self.id.to_string());
+        window.remove_window();
     }
 }
 
@@ -116,7 +117,7 @@ impl Render for Editor {
             .key_context(CONTEXT)
             .track_focus(&self.focus_handle.clone())
             .on_action(cx.listener(Self::new_editor))
-            .on_action(cx.listener(Self::delete_editor))
+            .on_action(cx.listener(Self::close_editor))
             .bg(hsla(0.15, 0.96, 0.75, 1.))
             .text_color(black())
             .text_decoration_color(black())

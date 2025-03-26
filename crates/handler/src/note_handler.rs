@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use kernel::{
-    model::note::{UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
+    model::note::{UpdateNoteActiveEvent, UpdateNoteBodyEvent, UpdateNoteBoundsEvent},
     repository::note_repository::NoteRepository,
 };
 
@@ -35,6 +35,17 @@ impl NoteHandler {
 
     pub fn update_note_bounds(&self, event: UpdateNoteBoundsEvent) {
         self.repository.update_note_bounds(event).unwrap();
+    }
+
+    pub fn toggle_note_active(&self, id: &str) {
+        if let Some(note) = self.repository.get_note_by_id(id).unwrap() {
+            self.repository
+                .update_note_active(UpdateNoteActiveEvent {
+                    id: note.id,
+                    is_active: !note.is_active,
+                })
+                .unwrap();
+        }
     }
 
     pub fn delete_note(&self, id: &str) {

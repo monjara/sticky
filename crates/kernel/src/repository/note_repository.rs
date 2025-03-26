@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use crate::model::note::{Note, UpdateNoteBodyEvent, UpdateNoteBoundsEvent};
+use crate::model::note::{Note, UpdateNoteActiveEvent, UpdateNoteBodyEvent, UpdateNoteBoundsEvent};
 
 pub trait NoteRepository {
     fn get_notes(&self) -> Result<Vec<Note>, Box<dyn Error>>;
@@ -8,5 +8,6 @@ pub trait NoteRepository {
     fn create_note(&self) -> Result<Note, Box<dyn Error>>;
     fn update_note_body(&self, event: UpdateNoteBodyEvent) -> Result<String, Box<dyn Error>>;
     fn update_note_bounds(&self, event: UpdateNoteBoundsEvent) -> Result<String, Box<dyn Error>>;
+    fn update_note_active(&self, event: UpdateNoteActiveEvent) -> Result<(), Box<dyn Error>>;
     fn delete_note_by_id(&self, id: &str) -> Result<(), Box<dyn Error>>;
 }
