@@ -1,13 +1,18 @@
+use std::cmp::max;
+
 use gpui::{
     App, AppContext, Context, Entity, FocusHandle, Focusable, InteractiveElement, KeyBinding,
-    ParentElement, Pixels, Render, Styled, Window, WindowBounds, WindowOptions, actions, black,
-    div, hsla,
+    ParentElement, Pixels, Render, Size, Styled, Window, WindowBounds, WindowOptions, actions,
+    black, div, hsla,
 };
 use gpui_component::input::{InputEvent, TextInput};
 use kernel::model::note::{UpdateNoteBodyEvent, UpdateNoteBoundsEvent};
 use registry::{add_note, global_model::app_handler::AppHandler};
 
 const CONTEXT: &str = "Editor";
+const WINDOW_MIN_WIDTH: f64 = 30.;
+const WINDOW_MIN_HEIGHT: f64 = 5.;
+const RESIZE_STEP: f64 = 100.;
 
 enum Direction {
     Up,
@@ -24,7 +29,15 @@ actions!(
         MoveWindowUp,
         MoveWindowDown,
         MoveWindowRight,
-        MoveWindowLeft
+        MoveWindowLeft,
+        InflateTop,
+        InflateBottom,
+        InflateRight,
+        InflateLeft,
+        ShrinkBottom,
+        ShrinkTop,
+        ShrinkRight,
+        ShrinkLeft,
     ]
 );
 
@@ -34,14 +47,26 @@ pub fn init(cx: &mut App) {
         KeyBinding::new("cmd-n", NewEditor, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
         KeyBinding::new("cmd-w", CloseEditor, Some(CONTEXT)),
+        KeyBinding::new("ctrl-k", MoveWindowUp, Some(CONTEXT)),
+        KeyBinding::new("ctrl-j", MoveWindowDown, Some(CONTEXT)),
+        KeyBinding::new("ctrl-l", MoveWindowRight, Some(CONTEXT)),
+        KeyBinding::new("ctrl-h", MoveWindowLeft, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
-        KeyBinding::new("cmd-k", MoveWindowUp, Some(CONTEXT)),
+        KeyBinding::new("cmd-k", InflateTop, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
-        KeyBinding::new("cmd-j", MoveWindowDown, Some(CONTEXT)),
+        KeyBinding::new("cmd-j", InflateBottom, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
-        KeyBinding::new("cmd-l", MoveWindowRight, Some(CONTEXT)),
+        KeyBinding::new("cmd-l", InflateRight, Some(CONTEXT)),
         #[cfg(target_os = "macos")]
-        KeyBinding::new("cmd-h", MoveWindowLeft, Some(CONTEXT)),
+        KeyBinding::new("cmd-h", InflateLeft, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-shift-k", ShrinkBottom, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-shift-j", ShrinkTop, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-shift-l", ShrinkLeft, Some(CONTEXT)),
+        #[cfg(target_os = "macos")]
+        KeyBinding::new("cmd-shift-h", ShrinkRight, Some(CONTEXT)),
     ]);
 }
 
@@ -156,12 +181,124 @@ impl Editor {
     fn move_winow(&self, direction: Direction, window: &mut Window, cx: &mut Context<Self>) {
         let mut bounds = window.bounds();
         match direction {
-            Direction::Up => bounds.origin.y -= Pixels::from(20.),
-            Direction::Down => bounds.origin.y += Pixels::from(20.),
-            Direction::Right => bounds.origin.x += Pixels::from(20.),
-            Direction::Left => bounds.origin.x -= Pixels::from(20.),
+            Direction::Up => bounds.origin.y -= Pixels::from(RESIZE_STEP),
+            Direction::Down => bounds.origin.y += Pixels::from(RESIZE_STEP),
+            Direction::Right => bounds.origin.x += Pixels::from(RESIZE_STEP),
+            Direction::Left => bounds.origin.x -= Pixels::from(RESIZE_STEP),
         }
         bounds.size = window.viewport_size();
+
+        let options = WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(bounds)),
+            ..Default::default()
+        };
+        window.remove_window();
+        cx.open_window(options, |window, cx| Self::view(window, cx, &self.id))
+            .unwrap();
+    }
+
+    fn inflate_top(&mut self, _: &InflateTop, window: &mut Window, cx: &mut Context<Self>) {
+        self.inflate(Direction::Up, window, cx);
+    }
+
+    fn inflate_bottom(&mut self, _: &InflateBottom, window: &mut Window, cx: &mut Context<Self>) {
+        self.inflate(Direction::Down, window, cx);
+    }
+
+    fn inflate_right(&mut self, _: &InflateRight, window: &mut Window, cx: &mut Context<Self>) {
+        self.inflate(Direction::Right, window, cx);
+    }
+
+    fn inflate_left(&mut self, _: &InflateLeft, window: &mut Window, cx: &mut Context<Self>) {
+        self.inflate(Direction::Left, window, cx);
+    }
+
+    fn inflate(&self, direction: Direction, window: &mut Window, cx: &mut Context<Self>) {
+        let mut bounds = window.bounds();
+        let Size { width, height } = window.viewport_size();
+
+        match direction {
+            Direction::Up => {
+                bounds.origin.y -= Pixels::from(RESIZE_STEP);
+                bounds.size.width = width;
+                bounds.size.height = height + Pixels::from(RESIZE_STEP);
+            }
+            Direction::Down => {
+                bounds.size.width = width;
+                bounds.size.height = height + Pixels::from(RESIZE_STEP)
+            }
+            Direction::Right => {
+                bounds.size.height = height;
+                bounds.size.width = width + Pixels::from(RESIZE_STEP)
+            }
+            Direction::Left => {
+                bounds.origin.x -= Pixels::from(RESIZE_STEP);
+                bounds.size.height = height;
+                bounds.size.width = width + Pixels::from(RESIZE_STEP);
+            }
+        }
+
+        let options = WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(bounds)),
+            ..Default::default()
+        };
+        window.remove_window();
+        cx.open_window(options, |window, cx| Self::view(window, cx, &self.id))
+            .unwrap();
+    }
+
+    fn shrink_bottom(&mut self, _: &ShrinkBottom, window: &mut Window, cx: &mut Context<Self>) {
+        self.shrink(Direction::Down, window, cx);
+    }
+
+    fn shrink_top(&mut self, _: &ShrinkTop, window: &mut Window, cx: &mut Context<Self>) {
+        self.shrink(Direction::Up, window, cx);
+    }
+
+    fn shrink_right(&mut self, _: &ShrinkRight, window: &mut Window, cx: &mut Context<Self>) {
+        self.shrink(Direction::Right, window, cx);
+    }
+
+    fn shrink_left(&mut self, _: &ShrinkLeft, window: &mut Window, cx: &mut Context<Self>) {
+        self.shrink(Direction::Left, window, cx);
+    }
+
+    fn shrink(&self, direction: Direction, window: &mut Window, cx: &mut Context<Self>) {
+        let mut bounds = window.bounds();
+        let Size { width, height } = window.viewport_size();
+
+        match direction {
+            Direction::Up => {
+                bounds.origin.y += Pixels::from(RESIZE_STEP);
+                bounds.size.width = width;
+                bounds.size.height = max(
+                    height - Pixels::from(RESIZE_STEP),
+                    Pixels::from(WINDOW_MIN_HEIGHT),
+                );
+            }
+            Direction::Down => {
+                bounds.size.width = width;
+                bounds.size.height = max(
+                    height - Pixels::from(RESIZE_STEP),
+                    Pixels::from(WINDOW_MIN_HEIGHT),
+                );
+            }
+            Direction::Right => {
+                bounds.size.height = height;
+                bounds.size.width = max(
+                    width - Pixels::from(RESIZE_STEP),
+                    Pixels::from(WINDOW_MIN_WIDTH),
+                );
+            }
+            Direction::Left => {
+                bounds.origin.x += Pixels::from(RESIZE_STEP);
+                bounds.size.height = height;
+                bounds.size.width = max(
+                    width - Pixels::from(RESIZE_STEP),
+                    Pixels::from(WINDOW_MIN_WIDTH),
+                );
+            }
+        }
 
         let options = WindowOptions {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
@@ -194,6 +331,14 @@ impl Render for Editor {
             .on_action(cx.listener(Self::move_window_down))
             .on_action(cx.listener(Self::move_window_right))
             .on_action(cx.listener(Self::move_window_left))
+            .on_action(cx.listener(Self::inflate_top))
+            .on_action(cx.listener(Self::inflate_bottom))
+            .on_action(cx.listener(Self::inflate_right))
+            .on_action(cx.listener(Self::inflate_left))
+            .on_action(cx.listener(Self::shrink_bottom))
+            .on_action(cx.listener(Self::shrink_top))
+            .on_action(cx.listener(Self::shrink_right))
+            .on_action(cx.listener(Self::shrink_left))
             .bg(hsla(0.15, 0.96, 0.75, 1.))
             .text_color(black())
             .text_decoration_color(black())
