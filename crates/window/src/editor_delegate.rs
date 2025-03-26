@@ -1,5 +1,3 @@
-use std::ops::DerefMut;
-
 use gpui::App;
 use registry::global_model::note_store::{Note, NoteStore};
 
@@ -8,18 +6,15 @@ use crate::{
     window_options::{location::Location, make_editor_option, window_size::WindowSize},
 };
 
-pub struct EditorDelegater {
-    notes: Vec<Note>,
-}
+pub struct EditorDelegate {}
 
-impl EditorDelegater {
-    pub fn new(cx: &mut App) -> Self {
-        let notes = cx.global::<NoteStore>().notes.clone();
-        Self { notes }
+impl EditorDelegate {
+    pub fn new() -> Self {
+        Self {}
     }
 
     pub fn render_notes(&mut self, cx: &mut App) {
-        let notes = self.notes.clone();
+        let notes = cx.global::<NoteStore>().notes.clone();
         if notes.is_empty() {
             //cx.open_window(window_options(), |window, cx| Editor::view(window, cx, &id))
             //    .unwrap();
@@ -45,5 +40,11 @@ impl EditorDelegater {
             Editor::view(window, cx, &note.id)
         })
         .unwrap();
+    }
+}
+
+impl Default for EditorDelegate {
+    fn default() -> Self {
+        Self::new()
     }
 }
